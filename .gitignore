@@ -1,5 +1,36 @@
+# Форк цього репозиторію містить чужі проєкти будь-яким стеком — тримаємо
+# ігнор широким, щоб артефакти збірки не їхали в capstone-PR.
+
+# Node
 node_modules/
+dist/
+build/
+.next/
+out/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Rust / Go / JVM
+target/
+bin/
+vendor/
+*.class
+
+# Секрети
 .env
 .env.*
 !.env.example
+!.env.sample
+
+# ОС і редактори
 .DS_Store
+Thumbs.db
+.idea/
+.vscode/
