@@ -58,6 +58,23 @@ describe("The X thread splits at sentence boundaries", () => {
     for (const part of x) expect(count(part)).toBeLessThanOrEqual(280);
   });
 
+  it("keeps a URL whole when it lands at the limit", () => {
+    const url = "https://example.com/a-fairly-long-path/for-the-limit-case?q=1";
+    const source = `${"word ".repeat(48)}ends here. Read [the docs](${url}) now.`;
+
+    const { x } = transform(source);
+
+    expect(x.length).toBeGreaterThan(1);
+    // Part 1 is nearly full, so the URL moved because of the limit and not for some other
+    // reason. Without this bound the case would pass even if the parts split anywhere.
+    expect(count(x[0])).toBeGreaterThan(200);
+    expect(x[0]).not.toContain("https://");
+    // The URL sits in exactly one part, uncut. A split inside it would give two parts that
+    // each hold a piece, and neither piece would be a link any more.
+    expect(x.filter((part) => part.includes(url))).toHaveLength(1);
+    for (const part of x) expect(count(part)).toBeLessThanOrEqual(280);
+  });
+
   it("gives a fenced code block its own part", () => {
     const source = [
       "A paragraph before the code.",
