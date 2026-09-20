@@ -109,7 +109,19 @@ real runs, one for each stop reason:
 
 **Verify:** `docs/reviews/` holds at least two files. At least one names a real finding.
 
-**Status today:** not met. The subagent exists. No review output exists.
+**Status today:** partly met. `docs/reviews/` holds two files, and both name real findings.
+
+- `2026-09-20-lib-transform-groups-2-3.md`: 6 correctness bugs, 6 coverage gaps, 4 weak tests, 4
+  spec drifts. It carries a table of which findings I reproduced myself, and which one did not
+  reproduce as stated.
+- `2026-09-20-finished-change.md`: no bug in the route handler, 2 low-severity findings, and every
+  documented claim checked against the repository.
+
+R6 completes when the second review is re-run in full. That report arrived truncated, because the
+session ended while the reviewer was still writing. Its sections on the browser scenarios, on the
+ticked tasks, and on the `AGENTS.md` contradictions never arrived.
+
+Nothing that either reviewer found is fixed yet. Task 6.5 of `tasks.md` is open.
 
 ## R7 — The spec came before the code
 
