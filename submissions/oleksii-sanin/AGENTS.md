@@ -28,7 +28,9 @@ Spec first, code second. Every significant change is an OpenSpec change.
   behind it is a false record.
 - When the code and the spec disagree, edit the spec, and commit that edit on its own. Never leave
   the two disagreeing.
-- Run `openspec verify --change <name>` before the change is archived.
+- Run `openspec validate <name> --strict` before the change is archived. There is no
+  `openspec verify` command in the CLI (checked against openspec 1.4.1). `/opsx:verify` is a skill,
+  and it is the agent-driven check, not a command.
 - Each significant change also adds a row to `docs/autonomy-log.md`, as it happens.
 
 ## Commands (pnpm only — never npm or yarn)

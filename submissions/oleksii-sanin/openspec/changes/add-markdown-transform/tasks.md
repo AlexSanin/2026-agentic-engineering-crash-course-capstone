@@ -59,4 +59,4 @@
 - [ ] 6.5 Fix what the reviewer found, or record why a finding stands unfixed.
 - [ ] 6.6 Add a row to `docs/autonomy-log.md` for each significant piece of work, as it happens. Record every level change with its reason.
 - [ ] 6.7 Update the status lines in `docs/capstone-spec.md` for R1 to R7.
-- [ ] 6.8 Run `openspec verify --change add-markdown-transform`. Edit the spec where reality did not match it. Commit that edit apart.
+- [ ] 6.8 Run `openspec validate add-markdown-transform --strict`. The CLI has no `verify` command, which this task named until now. Edit the spec where reality did not match it. Commit that edit apart.
