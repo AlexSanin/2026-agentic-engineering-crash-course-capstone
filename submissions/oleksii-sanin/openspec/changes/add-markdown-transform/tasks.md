@@ -56,6 +56,6 @@
 - [ ] 6.3 Run the `reviewer` subagent on the diff of groups 2 and 3. Save the output to `docs/reviews/`.
 - [ ] 6.4 Run the `reviewer` subagent once on the finished change. Save that output too. Record an empty review as an empty review.
 - [ ] 6.5 Fix what the reviewer found, or record why a finding stands unfixed.
-- [ ] 6.6 Record each decision in `docs/decisions.md` as it happens. Name at least one agent error and one reverted step.
+- [ ] 6.6 Add a row to `docs/autonomy-log.md` for each significant piece of work, as it happens. Record every level change with its reason.
 - [ ] 6.7 Update the status lines in `docs/capstone-spec.md` for R1 to R7.
 - [ ] 6.8 Run `openspec verify --change add-markdown-transform`. Edit the spec where reality did not match it. Commit that edit apart.

@@ -106,7 +106,7 @@ This is the strongest verification proof in the rubric.
 - Every checked practice in the template carries a permalink to a file, a commit, a test or a run.
 - A 1 to 2 minute video shows the product, and says how the work was built with an agent.
 - One section states which decisions were mine, and which were the agent's.
-- `docs/decisions.md` records failures as they happen. It names at least one agent error and one reverted step.
+- `docs/autonomy-log.md` records the work as it happens. It names at least one agent error and one reverted step.
 
 **Verify:** open the PR in a private browser window. Every link resolves without a login.
 
@@ -117,7 +117,7 @@ This is the strongest verification proof in the rubric.
 The rubric returns work for four reasons. Each one has a countermeasure here.
 
 1. **A practice without proof.** Countermeasure: R1 to R7 each name a file path.
-2. **A record written after the fact.** Countermeasure: `docs/decisions.md` grows during the work, not before the submission.
+2. **A record written after the fact.** Countermeasure: `docs/autonomy-log.md` grows during the work, not before the submission.
 3. **A story where nothing failed.** Countermeasure: R8 requires one agent error and one reverted step.
 4. **A video longer than 2 minutes.** Countermeasure: record the video last, from a script.
 
