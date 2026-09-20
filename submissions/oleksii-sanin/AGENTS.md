@@ -5,6 +5,14 @@ Stack: Next.js 16 · TypeScript · pnpm · Vitest. The app is not scaffolded yet
 Trust level 1 ("Assistant"): propose first. Wait for a human decision before you change more
 than one file. Wait before you run anything that is not on the allow-list in `.claude/settings.json`.
 
+## Read first
+
+- `docs/capstone-spec.md` — when this project is done. Eight requirements, each with a command.
+- `docs/mvp-plan.md` — what the product is, the week-one scope, and the cut list.
+- `openspec/changes/<name>/` — the spec for the work in flight. Read `proposal.md`, `specs/` and
+  `tasks.md` before you write code for that change.
+- `.agent-log/README.md` — how the action log records what you did.
+
 ## Commands (pnpm only — never npm or yarn)
 
 - `pnpm check` — typecheck + lint + tests. Run it before you say a task is done. Quote the output.
@@ -41,4 +49,7 @@ than one file. Wait before you run anything that is not on the allow-list in `.c
   Never disable a lint rule to get green. Never run `git push --force` or `rm -rf`.
 - Never edit `.agent-log/` or `.claude/hooks/`. They record what you did. You do not write your own record.
 
-<!-- Keep this file under ~50 lines. Add a rule only after the agent gets the same thing wrong twice. -->
+## Claude Code
+
+- Start in plan mode for anything that touches `app/api/**` or a config file. A one-line diff needs no plan.
+- The `reviewer` subagent in `.claude/agents/` is the checker. The session that wrote the code never reviews it.
