@@ -43,12 +43,12 @@
 
 ## 5. Tool page
 
-- [ ] 5.1 Build the page with a textarea and four tabs. Mark the interactive part `'use client'`. Server Components stay the default.
-- [ ] 5.2 Show each X part as its own block with its counter.
-- [ ] 5.3 Add a copy button per tab, and one per X part. Copy the raw output, not the rendered HTML.
-- [ ] 5.4 Handle the empty textarea. Show empty outputs, not an error.
-- [ ] 5.5 Run `pnpm dev`. Paste one real post from `docs/mvp-plan.md`. Fix what breaks.
-- [ ] 5.6 Run `pnpm check`. Commit the page.
+- [x] 5.1 Build the page with a textarea and four tabs. Mark the interactive part `'use client'`. Server Components stay the default.
+- [x] 5.2 Show each X part as its own block with its counter.
+- [x] 5.3 Add a copy button per tab, and one per X part. Copy the raw output, not the rendered HTML.
+- [x] 5.4 Handle the empty textarea. Show empty outputs, not an error.
+- [x] 5.5 Run `pnpm dev`. Paste one real post from `docs/mvp-plan.md`. Fix what breaks.
+- [x] 5.6 Run `pnpm check`. Commit the page.
 
 ## 6. Proof trail
 
