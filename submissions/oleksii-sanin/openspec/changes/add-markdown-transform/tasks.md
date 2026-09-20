@@ -54,7 +54,7 @@
 
 - [x] 6.1 Write the loop script. It repeats `pnpm check` until exit code 0, or until it reaches a retry cap.
 - [x] 6.2 Save the output of one real run to `docs/runs/`. The file shows the iteration count and the stop reason.
-- [ ] 6.3 Run the `reviewer` subagent on the diff of groups 2 and 3. Save the output to `docs/reviews/`.
+- [x] 6.3 Run the `reviewer` subagent on the diff of groups 2 and 3. Save the output to `docs/reviews/`.
 - [ ] 6.4 Run the `reviewer` subagent once on the finished change. Save that output too. Record an empty review as an empty review.
 - [ ] 6.5 Fix what the reviewer found, or record why a finding stands unfixed.
 - [x] 6.6 Add a row to `docs/autonomy-log.md` for each significant piece of work, as it happens. Record every level change with its reason.
