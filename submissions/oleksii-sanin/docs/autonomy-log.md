@@ -32,6 +32,8 @@ Course levels:
 | 3 | `docs/capstone-spec.md`, the acceptance contract | 1 · Assistant | The human asked for the file. The agent wrote it. The human read it before the commit. | Commit `309b9ca`. | One file, and one `git revert` undoes it. |
 | 4 | OpenSpec artifacts for `add-markdown-transform` | 1 · Assistant | The human closed two scope decisions first. The agent then wrote four artifacts. | Commit `c5d01ee`. `openspec validate add-markdown-transform --strict` reports valid. | The spec fixes the scope of every line of code that follows it. |
 | 5 | The `Read first` section in `AGENTS.md` | 1 · Assistant | The human asked. | `AGENTS.md`, uncommitted at the time of this row. | A rules file. Permanent boundary. |
+| 6 | Next.js 16 scaffold, Tailwind v4, Vitest, and the `check` command | 1 · Assistant | The agent asked once with the dependency list from `proposal.md`. The human approved it, then ran the commit. | Commit `8c4804a`. `pnpm check` exits 0. `pnpm hooks:selftest` prints 19 `PASS` lines. | A dependency and a build configuration. The permanent boundary list holds both at level 1. |
+| 7 | Tailwind v4 in place of CSS modules | 1 · Assistant | The human reversed the agent mid-task, after the first scaffold had already landed in the working tree. | Commit `8c4804a`. `design.md` now carries the decision. `proposal.md` carries the two new dependencies. `tasks.md` 1.4 carries the step. | Same boundary as row 6. The reversal is the evidence that level 1 earned its cost here. |
 
 ---
 
@@ -42,11 +44,17 @@ that I kept a log.
 
 ### Raise
 
-None yet. Every row above is level 1, and that is honest, because no cheap error detector exists yet.
+**2026-09-20, level 1 to level 2, for `lib/` edits only.** This section used to hold one condition,
+written before the code existed: the level moves to 2 for `lib/` edits when `pnpm check` exists and
+stays green. Commit `8c4804a` meets that condition. `pnpm check` exists and it exits 0. The detector
+is a red Vitest run in seconds. The revert is one `git checkout` of a file that nothing imports yet.
 
-The condition is written down in advance. The level moves to 2 for `lib/` edits when `pnpm check`
-exists and stays green. A red test in 20 seconds is the detector that makes the raise safe. Today
-`package.json` does not exist, so `pnpm check` cannot run, so the level holds at 1.
+The raise is narrow on purpose. It covers `lib/transform/` and the test files beside it. The agent
+edits those files without a decision for each file. It still reports the command output and the exit
+code.
+
+Everything in **Permanent boundaries** below stays at level 1, and that includes the route handler at
+`app/api/**`, which `AGENTS.md` sends through plan mode first.
 
 ### Lower
 
