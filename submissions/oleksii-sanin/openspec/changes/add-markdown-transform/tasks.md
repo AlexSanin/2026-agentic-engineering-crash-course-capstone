@@ -13,9 +13,9 @@
 
 ## 2. Blog and email outputs
 
-- [ ] 2.1 Create `lib/transform/index.ts` with the function signature and the result type from `specs/markdown-transform/spec.md`. Return empty outputs.
-- [ ] 2.2 Write `lib/transform/index.test.ts` for the three scenarios of "One source, four outputs". Run it. It must fail.
-- [ ] 2.3 Commit the failing test. The message says that the test fails. This commit is the red half of R3 in `docs/capstone-spec.md`.
+- [x] 2.1 Create `lib/transform/index.ts` with the function signature and the result type from `specs/markdown-transform/spec.md`. Return empty outputs.
+- [x] 2.2 Write `lib/transform/index.test.ts` for the three scenarios of "One source, four outputs". Run it. It must fail.
+- [x] 2.3 Commit the failing test. The message says that the test fails. This commit is the red half of R3 in `docs/capstone-spec.md`.
 - [ ] 2.4 Parse the markdown with `remark-parse`. Build the blog HTML with `remark-rehype` and `rehype-stringify`.
 - [ ] 2.5 Write `lib/transform/blog.test.ts` for the code fence scenario and the link scenario.
 - [ ] 2.6 Build the email HTML. Apply a style map during the tree walk. Do not add a fourth dependency.
