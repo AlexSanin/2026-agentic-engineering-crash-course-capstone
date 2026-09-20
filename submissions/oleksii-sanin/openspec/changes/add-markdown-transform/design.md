@@ -25,7 +25,8 @@ deterministic text work.
 
 - The landing page, the email capture and the Vercel deployment. They are the next change.
 - Accounts, a database, publish integrations, a scheduler, and the AI hook generator.
-- A style system. The tool page uses plain elements and minimal CSS.
+- A design system, a component library, and a theme switch. Tailwind utility classes are the whole
+  style layer for this change.
 
 ## Decisions
 
@@ -43,6 +44,13 @@ path when a user reports an off-by-a-few split.
 **Inline the email styles during the tree walk, not with a post-processor.** A style map applied to
 the rehype tree costs about 20 lines. The alternative is a library such as `juice`, which is a fourth
 dependency for work this small.
+
+**Style with Tailwind CSS v4, not with CSS modules.** The human decided this on 2026-09-20, after
+the first scaffold landed. The first scaffold used CSS modules, which this document called enough
+for week one. The tool page holds four tabs, a textarea and a copy button for each X part. That is
+enough state-dependent styling that utility classes cost less than a module per component. The cost
+is two dev dependencies and one PostCSS configuration file. `create-next-app --tailwind` produced
+the wiring, so no file here is hand-written.
 
 **Keep the transform behind a route handler.** The function is pure and holds no secret, so it could
 run in the browser instead. Two reasons hold the route. The `unified` stack stays out of the client

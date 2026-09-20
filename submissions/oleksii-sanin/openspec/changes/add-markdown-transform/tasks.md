@@ -1,14 +1,15 @@
 ## 1. Scaffold and the check command
 
-- [ ] 1.1 Ask the human once for the dependency list in `proposal.md`. `AGENTS.md` requires it. Do not install before the answer.
-- [ ] 1.2 Run `create-next-app` in a temporary directory. Use TypeScript, ESLint, the App Router, no `src/` directory, and the import alias `@/*`.
-- [ ] 1.3 Copy `package.json`, `tsconfig.json`, `next.config.ts`, `eslint.config.mjs` and `app/` into this directory. Do not overwrite `AGENTS.md`, `CLAUDE.md`, `.claude/`, `docs/` or `openspec/`.
-- [ ] 1.4 Run `git status`. Confirm that the scaffold added no file inside `.claude/` and no file inside `.agent-log/`.
-- [ ] 1.5 Add Vitest and `vitest.config.ts`. Set the test environment to `node`.
-- [ ] 1.6 Add the `check` script to `package.json`: typecheck, then lint, then `vitest run`. Add `agent:log` and `hooks:selftest` to the same file.
-- [ ] 1.7 Run `pnpm check`. It must exit 0 on the empty project. Quote the output.
-- [ ] 1.8 Run `pnpm hooks:selftest`. All checks must print `PASS`.
-- [ ] 1.9 Commit the scaffold alone. The message uses `build:` or `chore:`. No `lib/` code is in this commit.
+- [x] 1.1 Ask the human once for the dependency list in `proposal.md`. `AGENTS.md` requires it. Do not install before the answer.
+- [x] 1.2 Run `create-next-app` in a temporary directory. Use TypeScript, ESLint, the App Router, no `src/` directory, and the import alias `@/*`.
+- [x] 1.3 Copy `package.json`, `tsconfig.json`, `next.config.ts`, `eslint.config.mjs` and `app/` into this directory. Do not overwrite `AGENTS.md`, `CLAUDE.md`, `.claude/`, `docs/` or `openspec/`.
+- [x] 1.4 Run `create-next-app` a second time with `--tailwind`. Copy its `app/` and its `postcss.config.mjs` in. Delete `app/page.module.css`. The human chose Tailwind over CSS modules on 2026-09-20, after the first scaffold landed.
+- [x] 1.5 Run `git status`. Confirm that the scaffold added no file inside `.claude/` and no file inside `.agent-log/`.
+- [x] 1.6 Add Vitest and `vitest.config.ts`. Set the test environment to `node`.
+- [x] 1.7 Add the `check` script to `package.json`: typecheck, then lint, then `vitest run`. Add `agent:log` and `hooks:selftest` to the same file.
+- [x] 1.8 Run `pnpm check`. It must exit 0 on the empty project. Quote the output.
+- [x] 1.9 Run `pnpm hooks:selftest`. All checks must print `PASS`.
+- [x] 1.10 Commit the scaffold alone. The message uses `build:` or `chore:`. No `lib/` code is in this commit.
 
 ## 2. Blog and email outputs
 

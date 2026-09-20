@@ -42,12 +42,14 @@ None. `openspec/specs/` is empty, because this is the first change in the projec
 **New code.** `lib/transform/`, `app/api/transform/route.ts`, `app/page.tsx`, and a Vitest file
 beside each `lib/` module.
 
-**New configuration.** `package.json`, `tsconfig.json`, `next.config.ts`, `eslint.config.mjs`, and
-`vitest.config.ts`. `AGENTS.md` requires a human decision before an agent edits the last four.
+**New configuration.** `package.json`, `tsconfig.json`, `next.config.ts`, `eslint.config.mjs`,
+`postcss.config.mjs`, and `vitest.config.ts`. `AGENTS.md` requires a human decision before an agent
+edits the last five.
 
-**New dependencies.** `next`, `react`, `typescript`, `vitest`, and the `unified` stack:
-`remark-parse`, `remark-rehype`, `rehype-stringify`. `AGENTS.md` requires a human decision before an
-agent adds any dependency. The apply step asks once, with this list.
+**New dependencies.** `next`, `react`, `typescript`, `vitest`, the `unified` stack (`unified`,
+`remark-parse`, `remark-rehype`, `rehype-stringify`), and Tailwind CSS v4 (`tailwindcss`,
+`@tailwindcss/postcss`). `AGENTS.md` requires a human decision before an agent adds any dependency.
+The apply step asked once, on 2026-09-20. The human approved the list, then added Tailwind to it.
 
 **No new dependency for the splitter.** The X thread splitter uses `Intl.Segmenter`, which is native.
 The human chose it over `twitter-text` on 2026-09-20. The ceiling is a grapheme count, not the
