@@ -55,6 +55,20 @@ describe("The route handler stays thin", () => {
     expect(body).not.toHaveProperty("blog");
   });
 
+  it("answers 413 on the declared size, before it reads the body", async () => {
+    const before = spy.calls;
+    const request = new Request("http://localhost/api/transform", {
+      method: "POST",
+      headers: { "content-length": String(100 * 1024 + 1) },
+      body: JSON.stringify({ markdown: "# Small body, large claim" }),
+    });
+
+    const response = await POST(request);
+
+    expect(response.status).toBe(413);
+    expect(spy.calls).toBe(before);
+  });
+
   it("answers 200 for an empty markdown string, because an empty source is not an error", async () => {
     const response = await post(JSON.stringify({ markdown: "" }));
     const body = await response.json();
