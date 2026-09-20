@@ -13,6 +13,24 @@ than one file. Wait before you run anything that is not on the allow-list in `.c
   `tasks.md` before you write code for that change.
 - `.agent-log/README.md` — how the action log records what you did.
 
+## How a change starts
+
+Spec first, code second. Every significant change is an OpenSpec change.
+
+- Significant = new behaviour, a new surface, a new dependency, a config change, or work that
+  touches more than one file. A typo, a comment and a one-line fix go direct.
+- The order is `proposal.md`, then `specs/<capability>/spec.md`, then `design.md`, then
+  `tasks.md`, then code. `/opsx:new` or `/opsx:propose` writes them. `/opsx:apply` implements
+  the tasks.
+- A scenario in `specs/` with no test is not done. The spec is the acceptance contract, not a
+  description of the code.
+- Tick each task in `tasks.md` in the same commit as the work it tracks. A tick with no commit
+  behind it is a false record.
+- When the code and the spec disagree, edit the spec, and commit that edit on its own. Never leave
+  the two disagreeing.
+- Run `openspec verify --change <name>` before the change is archived.
+- Each significant change also adds a row to `docs/autonomy-log.md`, as it happens.
+
 ## Commands (pnpm only — never npm or yarn)
 
 - `pnpm check` — typecheck + lint + tests. Run it before you say a task is done. Quote the output.
