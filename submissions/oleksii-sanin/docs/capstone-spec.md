@@ -97,7 +97,9 @@ This is the strongest verification proof in the rubric.
 
 **Verify:** `git log --oneline --reverse` shows the spec commit before the first `lib/` commit.
 
-**Status today:** not met. `openspec/config.yaml` is committed. No change exists.
+**Status today:** partly met. Commit `c5d01ee` holds the four artifacts of
+`openspec/changes/add-markdown-transform/`, and no code commit exists yet. R7 completes when the
+first `lib/` commit lands after that commit.
 
 ## R8 — The submission is honest and complete
 
