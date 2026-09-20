@@ -16,11 +16,11 @@
 - [x] 2.1 Create `lib/transform/index.ts` with the function signature and the result type from `specs/markdown-transform/spec.md`. Return empty outputs.
 - [x] 2.2 Write `lib/transform/index.test.ts` for the three scenarios of "One source, four outputs". Run it. It must fail.
 - [x] 2.3 Commit the failing test. The message says that the test fails. This commit is the red half of R3 in `docs/capstone-spec.md`.
-- [ ] 2.4 Parse the markdown with `remark-parse`. Build the blog HTML with `remark-rehype` and `rehype-stringify`.
-- [ ] 2.5 Write `lib/transform/blog.test.ts` for the code fence scenario and the link scenario.
-- [ ] 2.6 Build the email HTML. Apply a style map during the tree walk. Do not add a fourth dependency.
-- [ ] 2.7 Write `lib/transform/email.test.ts` for the heading scenario and the code block scenario.
-- [ ] 2.8 Run `pnpm check`. It must exit 0. Commit the green half of R3.
+- [x] 2.4 Parse the markdown with `remark-parse`. Build the blog HTML with `remark-rehype` and `rehype-stringify`.
+- [x] 2.5 Write `lib/transform/blog.test.ts` for the code fence scenario and the link scenario.
+- [x] 2.6 Build the email HTML. Apply a style map during the tree walk. Do not add a fourth dependency.
+- [x] 2.7 Write `lib/transform/email.test.ts` for the heading scenario and the code block scenario.
+- [x] 2.8 Run `pnpm check`. It must exit 0. Commit the green half of R3.
 
 ## 3. X thread and LinkedIn outputs
 
