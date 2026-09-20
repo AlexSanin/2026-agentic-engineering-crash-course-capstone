@@ -35,11 +35,11 @@
 
 ## 4. Route handler
 
-- [ ] 4.1 Start in plan mode. `CLAUDE.md` requires it for `app/api/**`.
-- [ ] 4.2 Create `app/api/transform/route.ts`. Read `markdown` from the body. Call `lib/transform`. Hold no transform logic.
-- [ ] 4.3 Reject a body with no `markdown` field with a 400. Reject a body over 100 KB with a 413.
-- [ ] 4.4 Write the route test for the three scenarios in `specs/transform-tool/spec.md`.
-- [ ] 4.5 Run `pnpm check`. Commit the route handler.
+- [x] 4.1 Start in plan mode. `CLAUDE.md` requires it for `app/api/**`.
+- [x] 4.2 Create `app/api/transform/route.ts`. Read `markdown` from the body. Call `lib/transform`. Hold no transform logic.
+- [x] 4.3 Reject a body with no `markdown` field with a 400. Reject a body over 100 KB with a 413.
+- [x] 4.4 Write the route test for the three scenarios in `specs/transform-tool/spec.md`.
+- [x] 4.5 Run `pnpm check`. Commit the route handler.
 
 ## 5. Tool page
 
