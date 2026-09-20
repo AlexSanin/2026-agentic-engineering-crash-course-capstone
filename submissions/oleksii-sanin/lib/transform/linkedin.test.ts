@@ -36,6 +36,9 @@ describe("LinkedIn output is plain text", () => {
     const { linkedin, meta } = transform(source);
 
     expect(linkedin.length).toBeLessThanOrEqual(3000);
+    // The cut sits at the LAST sentence under the limit, not at an early one. Without this
+    // bound a limit of 300, or of 10, would satisfy every other assertion here.
+    expect(linkedin.length).toBeGreaterThan(2800);
     expect(linkedin.trimEnd()).toMatch(/\.$/);
     expect(meta.linkedin.truncated).toBe(true);
     // The cut keeps whole sentences: the text is a prefix of the source.

@@ -31,6 +31,9 @@ describe("The X thread splits at sentence boundaries", () => {
       expect(count(part)).toBeLessThanOrEqual(280);
       expect(body(part).trimEnd()).toMatch(/\.$/);
     }
+    // The packing is greedy: a part carries as many sentences as fit. Without this bound a
+    // splitter that emitted one sentence per part would satisfy every assertion above.
+    for (const part of x.slice(0, -1)) expect(count(part)).toBeGreaterThan(150);
   });
 
   it("splits a sentence longer than the limit at a word boundary", () => {
