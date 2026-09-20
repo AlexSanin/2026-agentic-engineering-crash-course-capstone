@@ -1,0 +1,61 @@
+## 1. Scaffold and the check command
+
+- [ ] 1.1 Ask the human once for the dependency list in `proposal.md`. `AGENTS.md` requires it. Do not install before the answer.
+- [ ] 1.2 Run `create-next-app` in a temporary directory. Use TypeScript, ESLint, the App Router, no `src/` directory, and the import alias `@/*`.
+- [ ] 1.3 Copy `package.json`, `tsconfig.json`, `next.config.ts`, `eslint.config.mjs` and `app/` into this directory. Do not overwrite `AGENTS.md`, `CLAUDE.md`, `.claude/`, `docs/` or `openspec/`.
+- [ ] 1.4 Run `git status`. Confirm that the scaffold added no file inside `.claude/` and no file inside `.agent-log/`.
+- [ ] 1.5 Add Vitest and `vitest.config.ts`. Set the test environment to `node`.
+- [ ] 1.6 Add the `check` script to `package.json`: typecheck, then lint, then `vitest run`. Add `agent:log` and `hooks:selftest` to the same file.
+- [ ] 1.7 Run `pnpm check`. It must exit 0 on the empty project. Quote the output.
+- [ ] 1.8 Run `pnpm hooks:selftest`. All checks must print `PASS`.
+- [ ] 1.9 Commit the scaffold alone. The message uses `build:` or `chore:`. No `lib/` code is in this commit.
+
+## 2. Blog and email outputs
+
+- [ ] 2.1 Create `lib/transform/index.ts` with the function signature and the result type from `specs/markdown-transform/spec.md`. Return empty outputs.
+- [ ] 2.2 Write `lib/transform/index.test.ts` for the three scenarios of "One source, four outputs". Run it. It must fail.
+- [ ] 2.3 Commit the failing test. The message says that the test fails. This commit is the red half of R3 in `docs/capstone-spec.md`.
+- [ ] 2.4 Parse the markdown with `remark-parse`. Build the blog HTML with `remark-rehype` and `rehype-stringify`.
+- [ ] 2.5 Write `lib/transform/blog.test.ts` for the code fence scenario and the link scenario.
+- [ ] 2.6 Build the email HTML. Apply a style map during the tree walk. Do not add a fourth dependency.
+- [ ] 2.7 Write `lib/transform/email.test.ts` for the heading scenario and the code block scenario.
+- [ ] 2.8 Run `pnpm check`. It must exit 0. Commit the green half of R3.
+
+## 3. X thread and LinkedIn outputs
+
+- [ ] 3.1 Write `lib/transform/x.test.ts` first, for all five scenarios in the spec. Include the emoji case and the code fence case.
+- [ ] 3.2 Split the thread with `Intl.Segmenter`. Group the AST blocks. Split at a sentence boundary under 280 graphemes.
+- [ ] 3.3 Add the `n/total` counter to each part.
+- [ ] 3.4 Add the `ponytail:` comment at the split site. Name the grapheme ceiling and name `twitter-text` as the upgrade path.
+- [ ] 3.5 Write `lib/transform/linkedin.test.ts` for the three LinkedIn scenarios.
+- [ ] 3.6 Build the LinkedIn text. Remove the emphasis marks. Move each URL to its own line. Cut at the last sentence under 3000 characters.
+- [ ] 3.7 Add the `meta` object. Count the X parts and the characters of each output.
+- [ ] 3.8 Run `pnpm check`. Commit `lib/transform` complete.
+
+## 4. Route handler
+
+- [ ] 4.1 Start in plan mode. `CLAUDE.md` requires it for `app/api/**`.
+- [ ] 4.2 Create `app/api/transform/route.ts`. Read `markdown` from the body. Call `lib/transform`. Hold no transform logic.
+- [ ] 4.3 Reject a body with no `markdown` field with a 400. Reject a body over 100 KB with a 413.
+- [ ] 4.4 Write the route test for the three scenarios in `specs/transform-tool/spec.md`.
+- [ ] 4.5 Run `pnpm check`. Commit the route handler.
+
+## 5. Tool page
+
+- [ ] 5.1 Build the page with a textarea and four tabs. Mark the interactive part `'use client'`. Server Components stay the default.
+- [ ] 5.2 Show each X part as its own block with its counter.
+- [ ] 5.3 Add a copy button per tab, and one per X part. Copy the raw output, not the rendered HTML.
+- [ ] 5.4 Handle the empty textarea. Show empty outputs, not an error.
+- [ ] 5.5 Run `pnpm dev`. Paste one real post from `docs/mvp-plan.md`. Fix what breaks.
+- [ ] 5.6 Run `pnpm check`. Commit the page.
+
+## 6. Proof trail
+
+- [ ] 6.1 Write the loop script. It repeats `pnpm check` until exit code 0, or until it reaches a retry cap.
+- [ ] 6.2 Save the output of one real run to `docs/runs/`. The file shows the iteration count and the stop reason.
+- [ ] 6.3 Run the `reviewer` subagent on the diff of groups 2 and 3. Save the output to `docs/reviews/`.
+- [ ] 6.4 Run the `reviewer` subagent once on the finished change. Save that output too. Record an empty review as an empty review.
+- [ ] 6.5 Fix what the reviewer found, or record why a finding stands unfixed.
+- [ ] 6.6 Record each decision in `docs/decisions.md` as it happens. Name at least one agent error and one reverted step.
+- [ ] 6.7 Update the status lines in `docs/capstone-spec.md` for R1 to R7.
+- [ ] 6.8 Run `openspec verify --change add-markdown-transform`. Edit the spec where reality did not match it. Commit that edit apart.
