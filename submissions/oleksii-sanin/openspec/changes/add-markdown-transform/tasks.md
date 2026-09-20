@@ -24,14 +24,14 @@
 
 ## 3. X thread and LinkedIn outputs
 
-- [ ] 3.1 Write `lib/transform/x.test.ts` first, for all five scenarios in the spec. Include the emoji case and the code fence case.
-- [ ] 3.2 Split the thread with `Intl.Segmenter`. Group the AST blocks. Split at a sentence boundary under 280 graphemes.
-- [ ] 3.3 Add the `n/total` counter to each part.
-- [ ] 3.4 Add the `ponytail:` comment at the split site. Name the grapheme ceiling and name `twitter-text` as the upgrade path.
-- [ ] 3.5 Write `lib/transform/linkedin.test.ts` for the three LinkedIn scenarios.
-- [ ] 3.6 Build the LinkedIn text. Remove the emphasis marks. Move each URL to its own line. Cut at the last sentence under 3000 characters.
-- [ ] 3.7 Add the `meta` object. Count the X parts and the characters of each output.
-- [ ] 3.8 Run `pnpm check`. Commit `lib/transform` complete.
+- [x] 3.1 Write `lib/transform/x.test.ts` first, for all five scenarios in the spec. Include the emoji case and the code fence case.
+- [x] 3.2 Split the thread with `Intl.Segmenter`. Group the AST blocks. Split at a sentence boundary under 280 graphemes.
+- [x] 3.3 Add the `n/total` counter to each part.
+- [x] 3.4 Add the `ponytail:` comment at the split site. Name the grapheme ceiling and name `twitter-text` as the upgrade path.
+- [x] 3.5 Write `lib/transform/linkedin.test.ts` for the three LinkedIn scenarios.
+- [x] 3.6 Build the LinkedIn text. Remove the emphasis marks. Move each URL to its own line. Cut at the last sentence under 3000 characters.
+- [x] 3.7 Add the `meta` object. Count the X parts and the characters of each output.
+- [x] 3.8 Run `pnpm check`. Commit `lib/transform` complete.
 
 ## 4. Route handler
 

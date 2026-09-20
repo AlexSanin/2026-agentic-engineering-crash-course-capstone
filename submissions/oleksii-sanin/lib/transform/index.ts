@@ -10,6 +10,10 @@ import remarkParse from "remark-parse";
 import remarkRehype from "remark-rehype";
 import { unified } from "unified";
 
+import { type HastNode, toBlocks } from "./ast";
+import { linkedin } from "./linkedin";
+import { thread } from "./x";
+
 export type TransformResult = {
   /** Blog HTML. Headings, fenced code, lists and links keep their structure. */
   blog: string;
@@ -27,21 +31,6 @@ export type TransformMeta = {
   email: { chars: number };
   x: { parts: number; chars: number };
   linkedin: { chars: number; truncated: boolean };
-};
-
-/**
- * The part of a hast node that this module reads.
- *
- * `@types/hast` is a transitive dependency, and pnpm hides it from an import here. A full
- * type costs one more dependency and one more human decision. These four fields carry the
- * whole style walk, so the local type is enough.
- */
-type HastNode = {
-  type: string;
-  tagName?: string;
-  properties?: Record<string, unknown>;
-  children?: HastNode[];
-  value?: string;
 };
 
 const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif";
@@ -84,16 +73,6 @@ function applyEmailStyles(node: HastNode): HastNode {
   return node;
 }
 
-/** Plain text of a hast tree, one line for each block element. */
-function plainText(node: HastNode): string {
-  if (node.type === "text") return node.value ?? "";
-  const inner = (node.children ?? []).map(plainText).join("");
-  const isBlock = node.type === "element" && node.tagName !== undefined && !INLINE.has(node.tagName);
-  return isBlock ? `${inner}\n\n` : inner;
-}
-
-const INLINE = new Set(["a", "strong", "em", "code", "del", "span", "sup", "sub", "br"]);
-
 const EMPTY: TransformResult = {
   blog: "",
   email: "",
@@ -115,23 +94,20 @@ export function transform(markdown: string): TransformResult {
   const blog = toHtml.stringify(tree as never);
   const email = toHtml.stringify(applyEmailStyles(structuredClone(tree)) as never);
 
-  // ponytail: group 3 replaces these two lines with the split rules, the n/total counter,
-  // the URL-on-its-own-line rule and the 3000 character cut. Until then both outputs hold
-  // the whole post as one block, which is honest but not yet publishable.
-  const text = plainText(tree).trim();
-  const x = [text];
-  const linkedin = text;
+  const blocks = toBlocks(tree);
+  const x = thread(blocks);
+  const post = linkedin(blocks);
 
   return {
     blog,
     email,
     x,
-    linkedin,
+    linkedin: post.text,
     meta: {
       blog: { chars: blog.length },
       email: { chars: email.length },
       x: { parts: x.length, chars: x.join("").length },
-      linkedin: { chars: linkedin.length, truncated: false },
+      linkedin: { chars: post.text.length, truncated: post.truncated },
     },
   };
 }
