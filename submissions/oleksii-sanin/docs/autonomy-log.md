@@ -42,6 +42,7 @@ Course levels:
 | 13 | `scripts/check-loop.mjs` and the two recorded runs | 2 · Assistant to agent | The agent wrote the script, ran both runs, and reverted the deliberate break. | Commit `899b25c`. `docs/runs/` holds both stop reasons. | A script that repeats one command and changes nothing. |
 | 14 | The agent loop, and the fix for review finding 1.3 | 3 · Agent, for one run | The human chose a failure-driven loop over a loop around `/opsx:apply`, and approved the run after the agent said that it edits with no approval for each step. The session agent wrote the red test and the loop change. A headless `claude -p` agent wrote the fix. The session agent read its diff and reproduced the gap it named. | Commits `6f4a787` (red), `a27e75b`, `12e43b2` (green). `docs/runs/2026-09-27-check-loop-agent.txt`: 2 iterations, 1 agent turn, green in 50.9 seconds. `docs/runs/2026-09-27-loop-lock-probe.txt`: the lock refused an edit to a test file. | See the raise of 2026-09-27 below. |
 | 15 | Task 6.5: a fix or a recorded reason for each of the 23 findings in `docs/reviews/` | 2 · Assistant to agent | The human chose which change to apply. For each finding, the agent chose between a fix, a spec edit and a recorded reason. The human did not decide each finding. Two choices are the agent's alone, and the human can reverse them: 1.7 stays unfixed, and 4.3 changes the spec, not the code. | Commits `54a1e9f` to `07b5515`. Each new test for a fix ran red before the fix. `docs/runs/2026-09-27-grapheme-mutants.txt`. `pnpm check` exits 0 with 41 tests in 7 files. The outcome tables close both files in `docs/reviews/`. | `lib/` is at level 2 since 2026-09-20. `app/tool.tsx` is at level 2 by row 10. The spec edits follow the `AGENTS.md` rule: when the code and the spec disagree, edit the spec in a commit of its own. |
+| 16 | Two more reviews, and the second round of fixes | 2 · Assistant to agent, and 1 for what the reviews found at a boundary | The agent ran two reviewers in parallel: one on its own fixes, one to re-run the truncated review. It fixed what sat in `lib/`, `app/tool.tsx` and the docs. It fixed nothing at a permanent boundary: the route handler, a config file, a dependency, the harness and `AGENTS.md`. Those findings wait for the human. | Commits `f1bff54` to the commit that adds this row. `docs/reviews/2026-09-27-task-6-5-fixes.md` and `docs/reviews/2026-09-27-finished-change-rerun.md` end with an outcome table. | Level 2 covers `lib/` and the page. The list of permanent boundaries below keeps the rest at level 1, and that includes a medium security finding in `app/api/transform/route.ts`. |
 
 ---
 
@@ -69,8 +70,9 @@ a headless agent the failure output, and it accepts the agent's edits with no hu
 facts made that acceptable:
 
 - The loop is its own detector. It runs `pnpm check` after each agent turn.
-- The agent cannot edit a test file or `app/api/**`. A probe proved the lock before the run, in
-  `docs/runs/2026-09-27-loop-lock-probe.txt`. The lock was not assumed.
+- The agent cannot edit a test file or `app/api/**`. A probe proved the test-file lock before the
+  run, in `docs/runs/2026-09-27-loop-lock-probe.txt`. The review re-run of 2026-09-27 found that no
+  probe tested the `app/api/**` lock, and that the loop does not lock the config files.
 - The agent did not commit. The revert is one `git checkout` of `lib/transform/x.ts`.
 
 The raise covers that one run. The session agent read the diff before the commit. The agent in the
@@ -162,3 +164,11 @@ Two cases where the agent proposed something wrong, and I stopped it:
 > showed the opposite. The sentence loop kept nothing, and the hard cut ran. The cut fell on a space,
 > because the input was one character short of the defect. The finding was real, and a different
 > input reaches it. The review file now carries the correction.
+
+> **2026-09-27, five regressions in a round of fixes.** The agent fixed the 23 review findings with a
+> red test first for each one, and `pnpm check` stayed green. A reviewer on those commits then found
+> 13 more findings. Five were regressions that the fixes introduced. The fix for 1.5 moved every
+> command of a list below the last step. The re-fenced code split dropped a leading blank line and
+> could add one. Each test proved its own finding fixed, and none looked at the cases next to it. The
+> agent also claimed in a code comment that the LinkedIn cut was safe under "any count". The reviewer
+> showed a count where it is not. A green suite after a fix is not a review of the fix.

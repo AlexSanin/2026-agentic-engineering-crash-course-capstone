@@ -76,3 +76,38 @@ Not reviewed:
 - f6456e4.
 - The uncommitted log lines.
 No file in the repository was created, edited or deleted.
+
+---
+
+## Outcome — 2026-09-27
+
+Many findings touch a permanent boundary in `docs/autonomy-log.md`: `app/api/**`, a config file, a
+dependency, the harness, or `AGENTS.md`. The agent does not change those at level 2. Each such
+finding stands open, with the decision it waits for.
+
+| Finding | Outcome | Commit |
+|---|---|---|
+| S3.1 "The server keeps no copy" has no test | **Open, needs a decision.** The case goes in `app/api/transform/route.test.ts`, and `AGENTS.md` sends each change under `app/api/**` through plan mode. | — |
+| S3.2 to S3.6, the page scenarios | **Open, needs a decision.** A page test needs a DOM library and a `.test.tsx` include in `vitest.config.mts`: a new dependency and a config edit. `ac5f741` moves the copy outcome into `lib/clipboard.ts` with a node test. That holds the logic of a copy, not the render. | `ac5f741` |
+| S3.7 "A reload clears the work" | **Open, needs a decision.** It needs `@playwright/test` and a browser download. | — |
+| S4.1 Task 6.4, ticked on a truncated review | **Recorded.** The task now names the full re-run, this file. | `892231d` |
+| S4.2 Task 6.8, ticked before any spec edit | **Recorded.** The task now names the spec edits `54a1e9f` and `8e1d8ae`. | `892231d` |
+| S4.3 Task 6.6, no rows after row 14 | **Partly fixed.** Rows 15 and 16 cover the task 6.5 work. No row covers `6b95e82`, the proposal of `add-jira-gdocs-and-import`. Another session wrote it, and that session or the human adds the row. | `f6456e4` |
+| S4.4 Task 5.5, ticked with no paste in a browser | **Open, needs a decision.** Untick 5.5, or a human pastes a post into the page and records it. R1 in `docs/capstone-spec.md` now reads partly met for the same reason. | — |
+| S4.5 Tasks 1.1 to 1.10, ticked after the scaffold commit | **Stands.** History. A rewrite costs more than the record. | — |
+| S5.1 The loop locks no config file | **Open, needs a decision.** `scripts/check-loop.mjs` is the guard of an autonomous loop. | — |
+| S5.2 The trust level line in `AGENTS.md` | **Open, needs a decision.** `AGENTS.md` is a rules file. | — |
+| S5.3 Six scenarios with no test | **Open**, with S3. | — |
+| S5.4 No `.test.tsx` in the Vitest include | **Open**, with S3: a config edit. | — |
+| S5.5 No autonomy row after row 14 | See S4.3. | `f6456e4` |
+| S5.6 A Bash read of `.env*` meets no hook | **Open, needs a decision.** The fix goes in `.claude/settings.json` or a hook, which is the harness. It is a security finding. | — |
+| S5.7 Plan mode came after the config files | **Stands.** History. | — |
+| S5.8 `npx` in `.mcp.json` and in the log | **Open** for `.mcp.json`, a config file. **Stands** for the three runs in the log, which are history. | — |
+| S5.9 "The app is not scaffolded yet." | **Open, needs a decision.** `AGENTS.md` is a rules file. | — |
+| S5.10 `vitest.config.ts` and the config list | **Partly fixed.** `proposal.md` and `tasks.md` now say `vitest.config.mts`. Which config files need a human decision is open: `proposal.md` names five, and `AGENTS.md` names three. | `892231d` |
+| S5.11 Commits with more than one change | **Stands.** History. | — |
+| S5.12 `@types/node` with no recorded approval | **Open, needs a decision.** The human confirms or rejects the dependency after the fact. | — |
+| S5.13 R5, R6 and R8 name an artifact, not a command | **Open, needs a decision.** The fix is one word in `AGENTS.md`, a rules file. | — |
+| R1.1 A chunked body is read whole before the size check | **Open, needs a decision. Medium.** The fix touches `app/api/**`, which needs plan mode and a human decision. | — |
+| R1.2 The tab copy button keeps its state | **Fixed, and not tested.** The render needs a DOM library. | `be5e38d` |
+| R2.1 to R2.8, stale claims in `docs/capstone-spec.md` | **Fixed.** The fix of R2.8 in `docs/autonomy-log.md` lands in the same commit as this table. | `98adfcb` |
