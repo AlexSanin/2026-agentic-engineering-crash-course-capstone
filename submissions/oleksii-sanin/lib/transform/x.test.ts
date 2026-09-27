@@ -128,6 +128,43 @@ describe("The X thread splits at sentence boundaries", () => {
     expect(x.map(body)).toEqual(["• item one", "```\nconst a = 1;\nconst b = 2;\n```"]);
   });
 
+  // docs/reviews/2026-09-27-task-6-5-fixes.md, finding 9.
+  it("gives a fenced code block inside a quote its own part", () => {
+    const { x } = transform("> Run:\n>\n> ```\n> npm i\n> ```\n");
+
+    expect(x.map(body)).toEqual(["Run:", "```\nnpm i\n```"]);
+  });
+
+  // The same review, finding 1: every command moved below the last step.
+  it("keeps the code of each list item below that item", () => {
+    const source = [
+      "1. Install:",
+      "",
+      "   ```",
+      "   npm i",
+      "   ```",
+      "",
+      "2. Build:",
+      "",
+      "   ```",
+      "   npm run build",
+      "   ```",
+      "",
+    ].join("\n");
+
+    const { x } = transform(source);
+
+    expect(x.map(body)).toEqual(["• Install:", "```\nnpm i\n```", "• Build:", "```\nnpm run build\n```"]);
+  });
+
+  // The same review, finding 2.
+  it("prints no empty bullet for an item that holds only code", () => {
+    const { x, linkedin } = transform("- Install\n- ```sh\n  npm i\n  ```\n- Run\n");
+
+    expect(x.map(body)).toEqual(["• Install", "```\nnpm i\n```", "• Run"]);
+    expect(linkedin).not.toMatch(/^•\s*$/m);
+  });
+
   // Review finding 1.3, docs/reviews/2026-09-20-lib-transform-groups-2-3.md.
   it("splits a code line longer than the limit with no part that holds only a fence", () => {
     const source = ["```js", `const x = "${"y".repeat(400)}";`, "```", ""].join("\n");

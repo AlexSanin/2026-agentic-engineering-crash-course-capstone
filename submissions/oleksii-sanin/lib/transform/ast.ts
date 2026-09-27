@@ -69,10 +69,12 @@ const hrefsOf = (node: HastNode): string[] => {
   return [...here, ...(node.children ?? []).flatMap(hrefsOf)];
 };
 
-const listText = (node: HastNode): string =>
-  (node.children ?? [])
-    .filter((child) => child.tagName === "li")
-    .map((li) => `• ${proseOf(li).trim()}`)
+/** One bullet line for each item. An item that holds only code gets no bullet. */
+const listText = (items: HastNode[]): string =>
+  items
+    .map((li) => proseOf(li).trim())
+    .filter(Boolean)
+    .map((text) => `• ${text}`)
     .join("\n");
 
 /**
@@ -84,21 +86,41 @@ const listText = (node: HastNode): string =>
 export function toBlocks(tree: HastNode): Block[] {
   const blocks: Block[] = [];
 
-  for (const node of tree.children ?? []) {
-    if (node.type !== "element" || !node.tagName) continue;
-
-    const base = node.tagName === "ul" || node.tagName === "ol" ? listText(node) : proseOf(node).trim();
+  /** One text block: `base`, then the target of each link in `nodes` on a line of its own. */
+  const addText = (nodes: HastNode[], base: string) => {
     // A bare link is already a line of its own.
-    const urls = hrefsOf(node).filter((url) => !base.split("\n").includes(url));
+    const urls = nodes.flatMap(hrefsOf).filter((url) => !base.split("\n").includes(url));
     const text = [base, ...urls].filter(Boolean).join("\n");
     if (text.trim()) blocks.push({ kind: "text", text });
-
-    // ponytail: a code block inside a list or a quote follows all the text of that container,
-    // so text below the code moves above it. Split the container at each `pre` if order matters.
+  };
+  const addCode = (node: HastNode) => {
     for (const pre of presOf(node)) {
       const code = textOf(pre).replace(/\n+$/, "");
       if (code.trim()) blocks.push({ kind: "code", text: code });
     }
+  };
+
+  for (const node of tree.children ?? []) {
+    if (node.type !== "element" || !node.tagName) continue;
+
+    if (node.tagName === "ul" || node.tagName === "ol") {
+      // An item that holds code closes the text block, so its code follows its own text.
+      let items: HastNode[] = [];
+      for (const li of (node.children ?? []).filter((child) => child.tagName === "li")) {
+        items.push(li);
+        if (presOf(li).length === 0) continue;
+        addText(items, listText(items));
+        addCode(li);
+        items = [];
+      }
+      addText(items, listText(items));
+      continue;
+    }
+
+    addText([node], proseOf(node).trim());
+    // ponytail: a code block inside a quote follows all the text of that quote, so text below
+    // the code moves above it. Split the quote at each `pre`, as the list walk does, if it matters.
+    addCode(node);
   }
 
   return blocks;
