@@ -32,6 +32,22 @@ export async function convert(run: () => Promise<string>, name: string): Promise
 }
 
 /**
+ * The stale guard of the page. It numbers each import and each edit of the textarea. An import that
+ * ends after a later import or edit is stale, and `load` gives `undefined` for it.
+ */
+export function sequence() {
+  let latest = 0;
+  return {
+    edit: () => void latest++,
+    async load(pending: Promise<Imported>): Promise<Imported | undefined> {
+      const id = ++latest;
+      const imported = await pending;
+      return id === latest ? imported : undefined;
+    },
+  };
+}
+
+/**
  * The Open file control. The route check runs before the file is read. The HTML and `.docx`
  * conversions load on demand, so the first page load carries none of them.
  */

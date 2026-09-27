@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { importFile, importKind, MAX_FILE_BYTES } from "./file";
+import { type Imported, importFile, importKind, MAX_FILE_BYTES, sequence } from "./file";
 
 describe("A local file opens into the textarea", () => {
   it.each([
@@ -67,3 +67,24 @@ describe("The Open file control imports a file", () => {
   });
 });
 
+// docs/reviews/2026-09-27-review-fixes.md, rule violation: the stale guard lived in the component with no test.
+describe("An import that ends late changes nothing", () => {
+  it("drops an import that ends after a later import", async () => {
+    const imports = sequence();
+    let finish!: (imported: Imported) => void;
+    const slow = imports.load(new Promise((resolve) => (finish = resolve)));
+    const fast = imports.load(Promise.resolve({ markdown: "fast" }));
+    finish({ markdown: "slow" });
+
+    expect(await fast).toEqual({ markdown: "fast" });
+    expect(await slow).toBeUndefined();
+  });
+
+  it("drops an import that ends after an edit", async () => {
+    const imports = sequence();
+    const late = imports.load(Promise.resolve({ markdown: "late" }));
+    imports.edit();
+
+    expect(await late).toBeUndefined();
+  });
+});

@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 
 import { copy, paste } from "@/lib/clipboard";
-import { type Imported, importFile } from "@/lib/import/file";
+import { type Imported, importFile, sequence } from "@/lib/import/file";
 import { jiraToMarkdown } from "@/lib/import/jira";
 import type { TransformResult } from "@/lib/transform";
 
@@ -67,21 +67,20 @@ export function Tool() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const fileInput = useRef<HTMLInputElement>(null);
-  // The number of the latest import or edit. A slow import that ends after a later one is stale.
-  const latest = useRef(0);
+  // Numbers each import and edit. A slow import that ends after a later one is stale.
+  const [imports] = useState(sequence);
   // The Jira conversion of the textarea. The control stays off until the textarea changes again.
   const [converted, setConverted] = useState<string | null>(null);
 
   function edit(value: string) {
-    latest.current++;
+    imports.edit();
     setMarkdown(value);
   }
 
   /** Put an import in the textarea, or show its message. A stale import changes nothing. */
   async function load(pending: Promise<Imported>) {
-    const id = ++latest.current;
-    const imported = await pending;
-    if (id !== latest.current) return;
+    const imported = await imports.load(pending);
+    if (!imported) return;
     if ("error" in imported) return setError(imported.error);
     setMarkdown(imported.markdown);
     setError("");
