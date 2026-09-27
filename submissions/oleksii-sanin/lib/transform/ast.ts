@@ -48,6 +48,17 @@ export const splitGraphemes = (text: string, budget: number): string[] => {
 const textOf = (node: HastNode): string =>
   node.type === "text" ? (node.value ?? "") : (node.children ?? []).map(textOf).join("");
 
+/** The text of `node` less every nested `pre`, which becomes a code block of its own. */
+const proseOf = (node: HastNode): string =>
+  node.tagName === "pre"
+    ? ""
+    : node.type === "text"
+      ? (node.value ?? "")
+      : (node.children ?? []).map(proseOf).join("");
+
+const presOf = (node: HastNode): HastNode[] =>
+  node.tagName === "pre" ? [node] : (node.children ?? []).flatMap(presOf);
+
 const hrefsOf = (node: HastNode): string[] => {
   const here = node.tagName === "a" && typeof node.properties?.href === "string"
     ? [node.properties.href as string]
@@ -58,7 +69,7 @@ const hrefsOf = (node: HastNode): string[] => {
 const listText = (node: HastNode): string =>
   (node.children ?? [])
     .filter((child) => child.tagName === "li")
-    .map((li) => `• ${textOf(li).trim()}`)
+    .map((li) => `• ${proseOf(li).trim()}`)
     .join("\n");
 
 /**
@@ -73,16 +84,17 @@ export function toBlocks(tree: HastNode): Block[] {
   for (const node of tree.children ?? []) {
     if (node.type !== "element" || !node.tagName) continue;
 
-    if (node.tagName === "pre") {
-      const code = textOf(node).replace(/\n+$/, "");
-      if (code.trim()) blocks.push({ kind: "code", text: code });
-      continue;
-    }
-
-    const base = node.tagName === "ul" || node.tagName === "ol" ? listText(node) : textOf(node).trim();
+    const base = node.tagName === "ul" || node.tagName === "ol" ? listText(node) : proseOf(node).trim();
     const urls = hrefsOf(node);
     const text = [base, ...urls].filter(Boolean).join("\n");
     if (text.trim()) blocks.push({ kind: "text", text });
+
+    // ponytail: a code block inside a list or a quote follows all the text of that container,
+    // so text below the code moves above it. Split the container at each `pre` if order matters.
+    for (const pre of presOf(node)) {
+      const code = textOf(pre).replace(/\n+$/, "");
+      if (code.trim()) blocks.push({ kind: "code", text: code });
+    }
   }
 
   return blocks;

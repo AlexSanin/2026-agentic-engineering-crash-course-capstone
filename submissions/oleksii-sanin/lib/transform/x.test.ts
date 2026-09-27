@@ -113,6 +113,17 @@ describe("The X thread splits at sentence boundaries", () => {
     expect(textParts[0]).not.toContain("const a = 1;");
   });
 
+  // Review finding 1.5: the code merged into the list text and lost its fence.
+  it("gives a fenced code block inside a list item its own part", () => {
+    const source = ["- item one", "", "  ```ts", "  const a = 1;", "  const b = 2;", "  ```", ""].join(
+      "\n",
+    );
+
+    const { x } = transform(source);
+
+    expect(x.map(body)).toEqual(["• item one", "```\nconst a = 1;\nconst b = 2;\n```"]);
+  });
+
   // Review finding 1.3, docs/reviews/2026-09-20-lib-transform-groups-2-3.md.
   it("splits a code line longer than the limit with no part that holds only a fence", () => {
     const source = ["```js", `const x = "${"y".repeat(400)}";`, "```", ""].join("\n");
