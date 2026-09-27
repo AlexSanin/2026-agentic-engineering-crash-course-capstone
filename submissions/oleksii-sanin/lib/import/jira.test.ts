@@ -82,6 +82,20 @@ describe("Jira wiki markup converts to markdown", () => {
     expect(performance.now() - start).toBeLessThan(1000);
   });
 
+  // docs/reviews/2026-09-27-review-fixes.md, missing tests: no input reached the padding of a span.
+  it("pads a code span with a backtick or a space at each end", () => {
+    expect(jiraToMarkdown("{{`}}")).toBe("`` ` ``");
+    expect(jiraToMarkdown("{{ a }}")).toBe("`  a  `");
+  });
+
+  // Finding 3 of that review: the padding regex took 3.8 s here.
+  it("reads a long code span that starts with a space in linear time", () => {
+    const start = performance.now();
+    jiraToMarkdown(`{{ ${"a".repeat(100_000)}}}`);
+
+    expect(performance.now() - start).toBeLessThan(1000);
+  });
+
   // Finding 20: the placeholders are private-use characters, and input can hold them too.
   it("keeps text that looks like a placeholder", () => {
     expect(jiraToMarkdown("text \uE0000\uE001 here")).toBe("text 0 here");

@@ -24,7 +24,9 @@ const ticks = (code: string, min: number): string =>
  */
 function span(code: string): string {
   const mark = ticks(code, 1);
-  const pad = /^`|`$|^ .*\S.* $/.test(code) ? " " : "";
+  // Not `/^ .*\S.* $/`: it is quadratic on a long span that starts with a space.
+  const spaced = code.startsWith(" ") && code.endsWith(" ") && code.trim() !== "";
+  const pad = code.startsWith("`") || code.endsWith("`") || spaced ? " " : "";
   return `${mark}${pad}${code}${pad}${mark}`;
 }
 
