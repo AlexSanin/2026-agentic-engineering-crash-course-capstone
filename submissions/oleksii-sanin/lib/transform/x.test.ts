@@ -61,13 +61,15 @@ describe("The X thread splits at sentence boundaries", () => {
   });
 
   it("keeps a family emoji whole and counts it as one grapheme", () => {
-    const source = `${[1, 2, 3].map(sentence).join(" ")} The end is here ${FAMILY}.`;
+    // 272 graphemes, and 572 UTF-16 code units. The sentence fits one part only if the limit
+    // counts graphemes, so the limit acts on the emoji (review finding 2.1).
+    const source = `${"a".repeat(240)} ${FAMILY.repeat(30)}.`;
 
     const { x } = transform(source);
 
-    const holder = x.filter((part) => part.includes(FAMILY));
-    expect(holder).toHaveLength(1);
-    for (const part of x) expect(count(part)).toBeLessThanOrEqual(280);
+    expect(x).toHaveLength(1);
+    expect(body(x[0])).toBe(source);
+    expect(count(x[0])).toBeLessThanOrEqual(280);
   });
 
   it("keeps a URL whole when it lands at the limit", () => {
