@@ -40,7 +40,9 @@ function edges(mark: HastNode): HastNode[] {
   const lead = first?.type === "text" ? /^\s*/.exec(first.value ?? "")![0] : "";
   if (lead) first!.value = first!.value!.slice(lead.length);
   const last = mark.children?.at(-1);
-  const trail = last?.type === "text" ? /\s*$/.exec(last.value ?? "")![0] : "";
+  const tail = last?.type === "text" ? (last.value ?? "") : "";
+  // Not `/\s*$/`: it is quadratic on a long run of spaces with a letter after it.
+  const trail = tail.slice(tail.trimEnd().length);
   if (trail) last!.value = last!.value!.slice(0, -trail.length);
   // A mark with no text left prints as `****`, so only its spaces stay.
   if (mark.children?.every((kid) => kid.type === "text" && !kid.value)) return lead + trail ? [text(lead + trail)] : [];

@@ -99,4 +99,12 @@ describe("HTML converts to markdown", () => {
     expect(htmlToMarkdown("<p>a<strong> b </strong>c</p>").trim()).toBe("a **b** c");
     expect(htmlToMarkdown("<p>a<b> </b>c<b></b>d</p>").trim()).toBe("a cd");
   });
+
+  // Finding 2: `/\s*$/` took 4.6 s here.
+  it("reads a long run of spaces inside a mark in linear time", () => {
+    const start = performance.now();
+    htmlToMarkdown(`<p><b>y${" ".repeat(100_000)}x</b></p>`);
+
+    expect(performance.now() - start).toBeLessThan(1000);
+  });
 });
