@@ -35,14 +35,25 @@ A thin slice of `docs/mvp-plan.md` works end to end.
 
 **Verify:** `pnpm dev`, then paste one real post from `docs/mvp-plan.md` day 5. All four outputs appear.
 
-**Status today:** met. `lib/transform/` holds the pure function, with no React import and no Next
-import. `app/api/transform/route.ts` calls it and holds no transform logic. `app/page.tsx` stays a
-Server Component, and `app/tool.tsx` carries the textarea and the four tabs. Against a running
-`pnpm dev`, the landing page copy of `docs/mvp-plan.md` gives HTTP 200 on the page and on the
-endpoint, 10 X parts, and no part over 280 graphemes.
+**Status today:** partly met on 2026-09-27. It read "met" until then.
 
-Not verified by the agent: the tab clicks and the copy button in a real browser. The probe drove
-HTTP, not the DOM. A human still has to open the page once.
+- `lib/transform/` holds the pure function, with no React import and no Next import. A case in
+  `lib/transform/index.test.ts` holds that rule since `396957d`.
+- `app/api/transform/route.ts` calls it and holds no transform logic.
+- `app/page.tsx` stays a Server Component, and `app/tool.tsx` carries the textarea and the four tabs.
+- Against a running `pnpm dev`, the landing page copy of `docs/mvp-plan.md` gives HTTP 200 on the
+  page and on the endpoint, 10 X parts, and no part over 280 graphemes.
+
+The verify step above never ran. Nobody pasted a post into the page in a browser. The probe drove
+HTTP, not the DOM, and task 5.5 carries the same gap. Six of the ten scenarios in
+`specs/transform-tool/spec.md` have no test, because a page test needs a DOM library, which is a new
+dependency. `docs/reviews/2026-09-27-finished-change-rerun.md` lists them in section 3.
+
+One medium finding in the route handler is open. A body with no `content-length` header skips the
+first size check, and the handler reads it whole before the second. The fix touches `app/api/**`, so
+it waits for plan mode and a human decision.
+
+R1 is met when a human pastes the post into the page once, and the route finding is closed.
 
 ## R2 — One command verifies the project
 
@@ -53,9 +64,13 @@ HTTP, not the DOM. A human still has to open the page once.
 **Verify:** `pnpm check` exits 0. Quote the output and the test count in the PR.
 
 **Status today:** met. `pnpm check` runs `next typegen`, then `tsc --noEmit`, then `eslint`, then
-`vitest run`. It exits 0 with 30 cases in 6 files (29 until `12e43b2` on 2026-09-27). Every `lib/` module has a test file beside it.
-The splitter has a case for each edge case R2 names: a long sentence, a code fence, and a link at
-the limit.
+`vitest run`. At `08b46ae` it exits 0 with 56 tests in 8 files. At the start of 2026-09-27 it held
+30 tests in 6 files. Every `lib/` module has a test file beside it: `lib/transform/ast.ts` since
+`e011f1f`, and `lib/clipboard.ts` since `ac5f741`. The splitter has a case for each edge case R2
+names: a long sentence, a code fence, and a link at the limit.
+
+Two mutants of the grapheme helpers passed the whole suite until `e011f1f`. Both fail it now:
+`docs/runs/2026-09-27-grapheme-mutants.txt`.
 
 ## R3 — A test was red, then green
 
@@ -78,8 +93,12 @@ This is the strongest verification proof in the rubric.
 
 **Verify:** `pnpm agent:log`. The report lists the blocked actions.
 
-**Status today:** met. `pnpm agent:log` reports 252 executed, 14 proposed but not executed, and 3
-failed, over 6 sessions.
+**Status today:** met. `pnpm agent:log` reports 619 executed, 17 proposed but not executed, and 8
+failed, over 11 sessions. That is the working log at 17:29 on 2026-09-27. Each session adds lines, so
+the numbers are a snapshot.
+
+`CLAUDE.md` no longer exists in this directory. Commit `d5aa6b0` merged it into `AGENTS.md`. The
+other three items stay committed.
 
 The blocked action to quote in the PR: at 11:20:30 the agent proposed
 `rm -rf scaffold` in its own scratch directory. The `deny` list in `.claude/settings.json` stopped
@@ -103,7 +122,10 @@ may not edit a test file or `app/api/**`.
 
 - `2026-09-27-check-loop-agent.txt`: the run that counts. Red on the test from `6f4a787`, one agent
   turn, green on iteration 2, 50.9 seconds. The agent changed `lib/transform/x.ts` only.
-- `2026-09-27-loop-lock-probe.txt`: a headless agent refused on an edit to a test file.
+- `2026-09-27-loop-lock-probe.txt`: a headless agent refused on an edit to a test file. The probe
+  tested that lock only. No probe tested the `app/api/**` lock. The loop also does not lock the
+  config files that `AGENTS.md` sends to the human, such as `vitest.config.mts`. That finding is
+  open: `docs/reviews/2026-09-27-finished-change-rerun.md`, section 5, item 1.
 - `2026-09-20-check-loop-green.txt` and `2026-09-20-check-loop-red.txt`: the first version, with no
   agent. The red run shows two identical red iterations, which is the defect.
 
@@ -115,20 +137,22 @@ may not edit a test file or `app/api/**`.
 
 **Verify:** `docs/reviews/` holds at least two files. At least one names a real finding.
 
-**Status today:** partly met. `docs/reviews/` holds two files, and both name real findings.
+**Status today:** met on 2026-09-27. `docs/reviews/` holds four files, and each names real findings.
+A session other than the maker wrote each one.
 
-- `2026-09-20-lib-transform-groups-2-3.md`: 6 correctness bugs, 6 coverage gaps, 4 weak tests, 4
-  spec drifts. It carries a table of which findings I reproduced myself, and which one did not
-  reproduce as stated.
-- `2026-09-20-finished-change.md`: no bug in the route handler, 2 low-severity findings, and every
-  documented claim checked against the repository.
+- `2026-09-20-lib-transform-groups-2-3.md`: 7 correctness findings, 6 coverage gaps, 4 weak tests, 2
+  spec drifts, and 2 contradictions with `AGENTS.md` and `design.md`. It carries a table of the
+  findings I reproduced myself. One row of that table was wrong, and the file records the correction.
+- `2026-09-20-finished-change.md`: no bug in the route handler, and 2 low-severity findings. It
+  arrived truncated, because the session ended while the reviewer was still writing.
+- `2026-09-27-finished-change-rerun.md`: the full re-run of the truncated review. 1 medium finding
+  in the route handler, 4 false ticks, 13 contradictions with `AGENTS.md`, and 8 stale claims in
+  this file.
+- `2026-09-27-task-6-5-fixes.md`: the review of the fixes for the first two files. 13 findings, and
+  5 of them are regressions that those fixes introduced.
 
-R6 completes when the second review is re-run in full. That report arrived truncated, because the
-session ended while the reviewer was still writing. Its sections on the browser scenarios, on the
-ticked tasks, and on the `AGENTS.md` contradictions never arrived.
-
-One finding is partly fixed: 1.3, by the agent loop in `12e43b2`. An edge of it stays open, and the
-review file records it. Every other finding is still open. Task 6.5 of `tasks.md` is open.
+Each file ends with the outcome of each finding: a fix with its commit, or the reason it stands.
+Findings that need a human decision under `AGENTS.md` stand open and say so.
 
 ## R7 — The spec came before the code
 
@@ -139,11 +163,16 @@ review file records it. Every other finding is still open. Task 6.5 of `tasks.md
 **Verify:** `git log --oneline --reverse` shows the spec commit before the first `lib/` commit.
 
 **Status today:** met. Commit `c5d01ee` holds the four artifacts of
-`openspec/changes/add-markdown-transform/`. The first code commit, `058e30f`, comes after it.
+`openspec/changes/add-markdown-transform/`. The first commit with code, the scaffold `8c4804a`, comes
+after it. So does the first `lib/` commit, `058e30f`.
 
-The separate spec edit is `637172b`. The artifacts said plain elements and minimal CSS. The human
-chose Tailwind v4 mid-task, so `design.md` and `proposal.md` changed in their own commit, apart
-from the code. `AGENTS.md` now carries the rule itself, in commit `882960e`.
+The first spec edit is `637172b`. The artifacts said plain elements and minimal CSS. The human
+chose Tailwind v4 mid-task, so `design.md` and `proposal.md` changed apart from the code. That
+commit also ticks ten tasks, so it is not a pure spec edit. `AGENTS.md` now carries the rule itself,
+in commit `882960e`.
+
+Two later spec edits follow the review findings, each in a commit of its own: `54a1e9f` and
+`8e1d8ae`, on 2026-09-27.
 
 ## R8 — The submission is honest and complete
 
@@ -156,8 +185,8 @@ from the code. `AGENTS.md` now carries the rule itself, in commit `882960e`.
 
 **Verify:** open the PR in a private browser window. Every link resolves without a login.
 
-**Status today:** not met. The branch exists on `origin`. The pull request and the video do not
-exist yet.
+**Status today:** not met. The branch exists on `origin`, but `origin/oleksii-sanin` is at
+`133b896`. The commits after it are local only. The pull request and the video do not exist yet.
 
 ## Traps
 
