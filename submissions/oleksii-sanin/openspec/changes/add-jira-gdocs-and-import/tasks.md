@@ -44,10 +44,10 @@
 
 ## 7. .docx to markdown
 
-- [ ] 7.1 Make `lib/import/fixtures/sample.docx` with `python-docx` through `uv`. It holds a Heading 1, a paragraph with one bold word, a bullet list of two items and one small image. Put the command in a comment at the top of `docx.test.ts`.
-- [ ] 7.2 Write `lib/import/docx.test.ts` for the two scenarios of "A .docx file converts to markdown". Pass `{ buffer }`. Run it. It must fail.
-- [ ] 7.3 Create `lib/import/docx.ts`. Export `docxToMarkdown(input)`: `mammoth.convertToHtml`, then `htmlToMarkdown`.
-- [ ] 7.4 Run `pnpm check`. It must exit 0. Commit the `.docx` conversion.
+- [x] 7.1 Make `lib/import/fixtures/sample.docx` with `python-docx` through `uv`. It holds a Heading 1, a paragraph with one bold word, a bullet list of two items and one small image. Put the command in a comment at the top of `docx.test.ts`.
+- [x] 7.2 Write `lib/import/docx.test.ts` for the two scenarios of "A .docx file converts to markdown". Pass `{ buffer }`. Run it. It must fail.
+- [x] 7.3 Create `lib/import/docx.ts`. Export `docxToMarkdown(input)`: `mammoth.convertToHtml`, then `htmlToMarkdown`.
+- [x] 7.4 Run `pnpm check`. It must exit 0. Commit the `.docx` conversion.
 
 ## 8. File routing and the page controls
 
