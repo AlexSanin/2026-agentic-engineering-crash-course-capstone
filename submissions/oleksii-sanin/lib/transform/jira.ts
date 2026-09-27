@@ -43,7 +43,8 @@ function inline(node: HastNode): string {
     case "a":
       return `[${inner}|${String(node.properties?.href ?? "")}]`;
     case "img":
-      return node.properties?.src ? `!${String(node.properties.src)}!` : "";
+      // A `!` in the URL would close the image early. A `|` is safe: remark encodes it already.
+      return node.properties?.src ? `!${String(node.properties.src).replace(/!/g, "%21")}!` : "";
     case "pre":
       // A code block inside a list item. The newline text around it is enough: a blank line would
       // end the Jira list.

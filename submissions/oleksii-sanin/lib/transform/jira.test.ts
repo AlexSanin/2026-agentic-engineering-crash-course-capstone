@@ -80,6 +80,11 @@ describe("Jira output is wiki markup", () => {
     expect(lines(transform("- a\n\n  > q\n- b\n").jira)).toEqual(["* a", "q", "* b"]);
   });
 
+  // Finding 8 of that review: a `!` in the URL closed the image early.
+  it("encodes a bang in the URL of an image", () => {
+    expect(transform("![](https://x.com/wow!.png)\n").jira).toBe("!https://x.com/wow%21.png!");
+  });
+
   it("uses the bang form for an image", () => {
     expect(transform("Text with ![i](https://example.com/i.png) image\n").jira).toBe("Text with !https://example.com/i.png! image");
   });
