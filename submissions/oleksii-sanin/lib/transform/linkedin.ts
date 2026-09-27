@@ -2,7 +2,9 @@ import { type Block, clusters, fence, sentences } from "./ast";
 
 /**
  * LinkedIn stops showing a post beyond this length. The count is UTF-16 code units, which is
- * never lower than a grapheme count, so a post under it is under any count LinkedIn may apply.
+ * never lower than a grapheme count or a code point count, so a post under it is under those
+ * counts too. A UTF-8 byte count or a weighted count can be higher. How LinkedIn counts is not
+ * verified.
  */
 const LIMIT = 3000;
 
