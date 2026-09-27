@@ -60,7 +60,7 @@ function splitLines(text: string, budget: number): string[] {
     current = undefined;
   };
 
-  for (const line of text.split("\n")) {
+  for (const line of text.split(/\r?\n/)) {
     const candidate = current === undefined ? line : `${current}\n${line}`;
     if (graphemes(candidate) <= budget) {
       current = candidate;

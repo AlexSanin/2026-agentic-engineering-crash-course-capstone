@@ -227,6 +227,15 @@ describe("The X thread splits at sentence boundaries", () => {
     expect(x.map(body)).toEqual(["```\n\nfoo\nbar\n```"]);
   });
 
+  // docs/reviews/2026-09-27-task-6-5-fixes-round-2.md, finding 4: the "\r" became a blank line.
+  it("splits a CRLF code block at its line ends", () => {
+    const line = "y".repeat(267);
+
+    const { x } = transform(`\`\`\`\r\n${line}\r\nshort\r\n\`\`\`\r\n`);
+
+    expect(x.map(body)).toEqual([`\`\`\`\n${line}\n\`\`\``, "```\nshort\n```"]);
+  });
+
   // The same review, findings 4 and 5.
   it.each([
     ["a line break", `${"y".repeat(267)}\n${"y".repeat(300)}`],
