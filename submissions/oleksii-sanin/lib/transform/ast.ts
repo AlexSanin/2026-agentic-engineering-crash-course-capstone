@@ -134,6 +134,10 @@ export function toBlocks(tree: HastNode): Block[] {
 
     if (node.tagName === "ul" || node.tagName === "ol") {
       // An item that holds code closes the text block, so its code follows its own text.
+      // ponytail: the walk splits at each item, not at each `pre`, and it is one level deep. Text
+      // below a code block in the same item moves above that code. In a nested list, every command
+      // moves below all the steps. The upgrade is a walk that splits at each `pre` and calls itself
+      // for a nested list.
       let items: HastNode[] = [];
       for (const li of (node.children ?? []).filter((child) => child.tagName === "li")) {
         items.push(li);
@@ -148,7 +152,7 @@ export function toBlocks(tree: HastNode): Block[] {
 
     addText([node], proseOf(node).trim());
     // ponytail: a code block inside a quote follows all the text of that quote, so text below
-    // the code moves above it. Split the quote at each `pre`, as the list walk does, if it matters.
+    // the code moves above it. The upgrade of the list walk above fixes this too.
     addCode(node);
   }
 
