@@ -23,8 +23,8 @@
 
 ## 4. Dependencies
 
-- [ ] 4.1 Run `pnpm add rehype-parse rehype-remark remark-stringify mammoth`. The human approved these four on 2026-09-27. Add no other package.
-- [ ] 4.2 Run `pnpm check`. It must exit 0. Commit `package.json` and `pnpm-lock.yaml` alone, with a `build:` message.
+- [x] 4.1 Run `pnpm add rehype-parse rehype-remark remark-stringify mammoth`. The human approved these four on 2026-09-27. Add no other package.
+- [x] 4.2 Run `pnpm check`. It must exit 0. Commit `package.json` and `pnpm-lock.yaml` alone, with a `build:` message.
 
 ## 5. HTML to markdown
 
