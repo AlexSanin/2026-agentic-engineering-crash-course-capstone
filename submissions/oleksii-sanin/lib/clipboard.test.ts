@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { copy } from "./clipboard";
+import { copy, paste } from "./clipboard";
 
 // docs/reviews/2026-09-27-task-6-5-fixes.md, finding 10.
 describe("The copy action reports its outcome", () => {
@@ -54,3 +54,36 @@ describe("The Google Docs tab copies rich text", () => {
     expect(await copy("## Setup", clipboard, "<h2>Setup</h2>")).toBe("failed");
   });
 });
+
+/** A clipboard that holds one item with the given entries. */
+const holding = (entries: Record<string, string>) => ({
+  read: async () =>
+    [{ types: Object.keys(entries), getType: async (type: string) => new Blob([entries[type]]) }] as unknown as ClipboardItems,
+});
+
+// The page calls `paste`, so the Paste rich text control has a test beside its logic (AGENTS.md).
+describe("The Paste rich text control reads the HTML entry", () => {
+  it("converts the text/html entry to markdown", async () => {
+    expect(await paste(holding({ "text/html": "<h2>Setup</h2>", "text/plain": "Setup" }))).toEqual({ markdown: "## Setup\n" });
+  });
+
+  it("gives a message when the clipboard holds plain text only", async () => {
+    expect(await paste(holding({ "text/plain": "## Setup" }))).toEqual({
+      error: "The clipboard holds no rich text. Copy from Google Docs, Word or a web page first.",
+    });
+  });
+
+  it("gives a message when the browser refuses the read", async () => {
+    expect(await paste({ read: () => Promise.reject(new Error("denied")) })).toEqual({
+      error: "The page could not read the clipboard. Allow clipboard access, then try again.",
+    });
+  });
+
+  // docs/reviews/2026-09-27-add-jira-gdocs-and-import.md, finding 16.
+  it("gives a message, not an empty text, for rich text with only an inline image", async () => {
+    expect(await paste(holding({ "text/html": '<img src="data:image/png;base64,AAAA">' }))).toEqual({
+      error: "The page found no text in the rich text.",
+    });
+  });
+});
+

@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
-import { importKind, MAX_FILE_BYTES } from "./file";
+import { describe, expect, it, vi } from "vitest";
+import { importFile, importKind, MAX_FILE_BYTES } from "./file";
 
 describe("A local file opens into the textarea", () => {
   it.each([
@@ -35,3 +35,35 @@ describe("A local file opens into the textarea", () => {
     expect(importKind("post.md", MAX_FILE_BYTES)).toEqual({ kind: "markdown" });
   });
 });
+
+// The page calls `importFile`, so the Open file control has a test beside its logic (AGENTS.md).
+describe("The Open file control imports a file", () => {
+  it("loads a markdown file unchanged", async () => {
+    expect(await importFile(new File(["# Post\n\ntext\n"], "post.md"))).toEqual({ markdown: "# Post\n\ntext\n" });
+  });
+
+  it("converts an HTML file", async () => {
+    expect(await importFile(new File(["<h2>Setup</h2>"], "page.html"))).toEqual({ markdown: "## Setup\n" });
+  });
+
+  it("refuses a file of 2 MB, and does not read it", async () => {
+    const text = vi.fn(async () => "");
+
+    const imported = await importFile({ name: "post.md", size: 2 * 1024 * 1024, text, arrayBuffer: vi.fn() });
+
+    expect(imported).toEqual({ error: expect.stringContaining("1 MB") });
+    expect(text).not.toHaveBeenCalled();
+  });
+
+  it("names a file that does not convert", async () => {
+    expect(await importFile(new File(["not a zip"], "bad.docx"))).toEqual({ error: "The page could not convert bad.docx." });
+  });
+
+  // docs/reviews/2026-09-27-add-jira-gdocs-and-import.md, finding 16: an empty result erased the draft.
+  it("gives a message, not an empty text, for a file with no text", async () => {
+    for (const file of [new File([" \n"], "empty.md"), new File(['<img src="data:image/png;base64,AAAA">'], "image.html")]) {
+      expect(await importFile(file)).toEqual({ error: `The page found no text in ${file.name}.` });
+    }
+  });
+});
+

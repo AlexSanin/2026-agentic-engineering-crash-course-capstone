@@ -2,8 +2,8 @@
 
 import { useRef, useState } from "react";
 
-import { copy } from "@/lib/clipboard";
-import { importKind } from "@/lib/import/file";
+import { copy, paste } from "@/lib/clipboard";
+import { type Imported, importFile } from "@/lib/import/file";
 import { jiraToMarkdown } from "@/lib/import/jira";
 import type { TransformResult } from "@/lib/transform";
 
@@ -12,8 +12,9 @@ import type { TransformResult } from "@/lib/transform";
  * handler and the clipboard.
  *
  * The type import above is erased at build time, so the transform stays on the server. The HTML
- * and `.docx` conversions load with `await import(...)` inside their handlers, so the first page
- * load carries none of them. `file.ts` and `jira.ts` have no dependency, and they load statically.
+ * and `.docx` conversions load with `await import(...)` inside `importFile` and `paste`, so the
+ * first page load carries none of them. `file.ts` and `jira.ts` have no dependency, and they load
+ * statically.
  */
 
 const TABS = [
@@ -67,38 +68,12 @@ export function Tool() {
   const [error, setError] = useState("");
   const fileInput = useRef<HTMLInputElement>(null);
 
-  /** Put converted markdown in the textarea, or show why the conversion failed. */
-  async function load(convert: () => Promise<string>, failure: string) {
-    try {
-      setMarkdown(await convert());
-      setError("");
-    } catch {
-      setError(failure);
-    }
-  }
-
-  async function openFile(file: File) {
-    const route = importKind(file.name, file.size);
-    if ("error" in route) return setError(route.error);
-    await load(async () => {
-      if (route.kind === "markdown") return file.text();
-      if (route.kind === "html") return (await import("@/lib/import/html")).htmlToMarkdown(await file.text());
-      const { docxToMarkdown } = await import("@/lib/import/docx");
-      return docxToMarkdown({ arrayBuffer: await file.arrayBuffer() });
-    }, `The page could not convert ${file.name}.`);
-  }
-
-  // A button, not a paste handler: VS Code puts HTML on the clipboard when it copies plain markdown.
-  async function pasteRichText() {
-    let html: string;
-    try {
-      const item = (await navigator.clipboard.read()).find((entry) => entry.types.includes("text/html"));
-      if (!item) return setError("The clipboard holds no rich text. Copy from Google Docs, Word or a web page first.");
-      html = await (await item.getType("text/html")).text();
-    } catch {
-      return setError("The page could not read the clipboard. Allow clipboard access, then try again.");
-    }
-    await load(async () => (await import("@/lib/import/html")).htmlToMarkdown(html), "The page could not convert the rich text.");
+  /** Put an import in the textarea, or show its message. */
+  async function load(pending: Promise<Imported>) {
+    const imported = await pending;
+    if ("error" in imported) return setError(imported.error);
+    setMarkdown(imported.markdown);
+    setError("");
   }
 
   async function run() {
@@ -167,10 +142,10 @@ export function Tool() {
               const file = event.target.files?.[0];
               // Clear the value, so that the same file can open again.
               event.target.value = "";
-              if (file) void openFile(file);
+              if (file) void load(importFile(file));
             }}
           />
-          <button type="button" onClick={pasteRichText} className={secondary}>
+          <button type="button" onClick={() => load(paste(navigator.clipboard))} className={secondary}>
             Paste rich text
           </button>
           <button

@@ -1,3 +1,5 @@
+import { convert, type Imported } from "./import/file";
+
 /**
  * Copy `text`, and report the outcome instead of a rejection. A refused permission rejects, and
  * a browser with no clipboard API passes `undefined`.
@@ -26,4 +28,20 @@ export async function copy(
   } catch {
     return "failed";
   }
+}
+
+/**
+ * The Paste rich text control: the `text/html` entry of the clipboard, as markdown. It is a button,
+ * not a paste handler, because VS Code puts HTML on the clipboard when it copies plain markdown.
+ */
+export async function paste(clipboard: Pick<Clipboard, "read">): Promise<Imported> {
+  let html: string;
+  try {
+    const item = (await clipboard.read()).find((entry) => entry.types.includes("text/html"));
+    if (!item) return { error: "The clipboard holds no rich text. Copy from Google Docs, Word or a web page first." };
+    html = await (await item.getType("text/html")).text();
+  } catch {
+    return { error: "The page could not read the clipboard. Allow clipboard access, then try again." };
+  }
+  return convert(async () => (await import("./import/html")).htmlToMarkdown(html), "the rich text");
 }

@@ -17,3 +17,31 @@ export function importKind(name: string, size: number): { kind: "markdown" | "ht
   if (size > MAX_FILE_BYTES) return { error: "The file is over the 1 MB limit." };
   return { kind };
 }
+
+/** What an import gives the page: markdown for the textarea, or the message to show instead. */
+export type Imported = { markdown: string } | { error: string };
+
+/** Run a conversion. A throw or a result with no text gives a message, so the textarea keeps its draft. */
+export async function convert(run: () => Promise<string>, name: string): Promise<Imported> {
+  try {
+    const markdown = await run();
+    return markdown.trim() ? { markdown } : { error: `The page found no text in ${name}.` };
+  } catch {
+    return { error: `The page could not convert ${name}.` };
+  }
+}
+
+/**
+ * The Open file control. The route check runs before the file is read. The HTML and `.docx`
+ * conversions load on demand, so the first page load carries none of them.
+ */
+export async function importFile(file: Pick<File, "name" | "size" | "text" | "arrayBuffer">): Promise<Imported> {
+  const route = importKind(file.name, file.size);
+  if ("error" in route) return route;
+  return convert(async () => {
+    if (route.kind === "markdown") return file.text();
+    if (route.kind === "html") return (await import("./html")).htmlToMarkdown(await file.text());
+    // mammoth in Node reads `{ buffer }` only, so the browser run is the proof of this line.
+    return (await import("./docx")).docxToMarkdown({ arrayBuffer: await file.arrayBuffer() });
+  }, file.name);
+}
