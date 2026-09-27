@@ -60,10 +60,10 @@
 
 ## 9. Manual check and proof trail
 
-- [ ] 9.1 Run `pnpm dev`. The human runs each page scenario of `transform-tool` and `markdown-import` once, including the paste into Google Docs and the paste into Jira. Save each result to `docs/runs/`. Record a failed scenario as failed.
+- [x] 9.1 Run `pnpm dev`. The human runs each page scenario of `transform-tool` and `markdown-import` once, including the paste into Google Docs and the paste into Jira. Save each result to `docs/runs/`. Record a failed scenario as failed. On 2026-09-27 the human wrote "all checked" after the second round of review fixes. No file in `docs/runs/` holds the result of that manual run. The saved results are the Playwright runs: `2026-09-27-browser-run.txt`, `2026-09-27-browser-run-fixes.txt` and `2026-09-27-browser-run-review-fixes.txt`.
 - [x] 9.2 In the same run, check the network tab. The first load fetches no import chunk. A `.docx` open sends no request.
-- [ ] 9.3 If Google Docs joins the lines of a `<pre>` block, apply the `<br>` fallback from `design.md`. Add the test first.
-- [ ] 9.4 Run the `reviewer` subagent on the diff of this change. Save the output to `docs/reviews/`. Fix each finding, or record why it stands unfixed.
-- [ ] 9.5 Add a row to `docs/autonomy-log.md` for each group, as it happens. Record who decided.
+- [x] 9.3 If Google Docs joins the lines of a `<pre>` block, apply the `<br>` fallback from `design.md`. Add the test first. Not applied. The human checked the paste into Google Docs in 9.1 and reported no joined lines, so the condition did not occur.
+- [x] 9.4 Run the `reviewer` subagent on the diff of this change. Save the output to `docs/reviews/`. Fix each finding, or record why it stands unfixed. Two reviews: `docs/reviews/2026-09-27-add-jira-gdocs-and-import.md` and `docs/reviews/2026-09-27-review-fixes.md`. Each file ends with a table of the outcome of each finding. The fixes of the second review, `b820a1c` to `e29783c`, had no reviewer, by the choice of the human.
+- [x] 9.5 Add a row to `docs/autonomy-log.md` for each group, as it happens. Record who decided. Rows 17 to 26. The first round of review fixes, `fc1da50` to `08ecb9d`, has no row of its own.
 - [x] 9.6 Run `openspec validate add-jira-gdocs-and-import --strict`. Edit the spec where the code differs from it. Commit that edit apart.
 - [ ] 9.7 Archive `add-markdown-transform` first. Its tasks 6.5 and 6.7 are open. Then archive this change.
