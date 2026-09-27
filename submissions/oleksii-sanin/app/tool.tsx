@@ -67,12 +67,30 @@ export function Tool() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const fileInput = useRef<HTMLInputElement>(null);
+  // The number of the latest import or edit. A slow import that ends after a later one is stale.
+  const latest = useRef(0);
+  // The Jira conversion of the textarea. The control stays off until the textarea changes again.
+  const [converted, setConverted] = useState<string | null>(null);
 
-  /** Put an import in the textarea, or show its message. */
+  function edit(value: string) {
+    latest.current++;
+    setMarkdown(value);
+  }
+
+  /** Put an import in the textarea, or show its message. A stale import changes nothing. */
   async function load(pending: Promise<Imported>) {
+    const id = ++latest.current;
     const imported = await pending;
+    if (id !== latest.current) return;
     if ("error" in imported) return setError(imported.error);
     setMarkdown(imported.markdown);
+    setError("");
+  }
+
+  function convertJira() {
+    const next = jiraToMarkdown(markdown);
+    edit(next);
+    setConverted(next);
     setError("");
   }
 
@@ -115,7 +133,7 @@ export function Tool() {
         <textarea
           id="source"
           value={markdown}
-          onChange={(event) => setMarkdown(event.target.value)}
+          onChange={(event) => edit(event.target.value)}
           rows={12}
           spellCheck={false}
           placeholder="# Your post&#10;&#10;Paste markdown here."
@@ -150,8 +168,8 @@ export function Tool() {
           </button>
           <button
             type="button"
-            onClick={() => setMarkdown(jiraToMarkdown(markdown))}
-            disabled={markdown === ""}
+            onClick={convertJira}
+            disabled={markdown === "" || markdown === converted}
             className={secondary}
           >
             Convert Jira text

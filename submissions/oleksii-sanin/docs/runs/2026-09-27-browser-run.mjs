@@ -1,4 +1,4 @@
-// Browser run for add-jira-gdocs-and-import, tasks 9.1 and 9.2.
+// Browser run for add-jira-gdocs-and-import, tasks 9.1 and 9.2, and the page fixes of task 9.4.
 //
 // Playwright from the npx cache drives the system Chrome against the running `pnpm dev` on :3033.
 // The project gets no dependency. Run from the project directory:
@@ -250,6 +250,62 @@ await check("The Jira output converts back through the page", async () => {
   await source.fill(await page.locator("pre").innerText());
   await button("Convert Jira text").click();
   await waitForValue((value) => value === markdown.trimEnd());
+});
+
+log("\n## page fixes, docs/reviews/2026-09-27-add-jira-gdocs-and-import.md");
+
+await check("Finding 17: Convert Jira text runs once for each edit", async () => {
+  await source.fill("*bold*");
+  await button("Convert Jira text").click();
+  await waitForValue((value) => value === "**bold**");
+  assert(await button("Convert Jira text").isDisabled(), "the control stays on after the conversion");
+  await source.fill("**bold** and *more*");
+  assert(await button("Convert Jira text").isEnabled(), "the control stays off after an edit");
+});
+
+await check("Finding 18: Convert Jira text clears an old message", async () => {
+  await page.evaluate(() => navigator.clipboard.writeText("plain text only"));
+  await button("Paste rich text").click();
+  await alert.waitFor({ timeout: 5000 });
+  await source.fill("h2. Setup");
+  await button("Convert Jira text").click();
+  await waitForValue((value) => value === "## Setup");
+  assert((await alertText()) === "", `alert: ${await alertText()}`);
+});
+
+await check("Finding 16: rich text with only an inline image changes nothing", async () => {
+  await source.fill("my draft");
+  await writeClipboard({ "text/html": '<img src="data:image/png;base64,AAAA">', "text/plain": "" });
+  await button("Paste rich text").click();
+  await page.waitForFunction(() => document.querySelector('main [role="alert"]')?.textContent.includes("found no text"));
+  assert((await source.inputValue()) === "my draft", "the textarea changed");
+  return `message: "${await alertText()}"`;
+});
+
+// A fresh tab has no conversion code yet, and each script request waits 2 s. The .docx import is
+// still running when the edit lands. The check also waits until the .docx code arrives, so it cannot
+// pass because the import never ran.
+await check("Finding 6: an edit during a slow import stays", async () => {
+  const slow = await context.newPage();
+  const bodies = [];
+  slow.on("response", async (response) => {
+    if (response.request().resourceType() === "script") bodies.push(await response.text().catch(() => ""));
+  });
+  await slow.goto(`${ORIGIN}/`, { waitUntil: "networkidle" });
+  await slow.route("**/*.js", async (route) => {
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+    await route.continue();
+  });
+  await slow.locator('input[type="file"]').setInputFiles("lib/import/fixtures/sample.docx");
+  await slow.locator("#source").fill("typed during the import");
+  const arrived = () => bodies.some((body) => body.includes("convertToHtml"));
+  for (let tries = 0; tries < 300 && !arrived(); tries++) await slow.waitForTimeout(100);
+  await slow.waitForTimeout(1000);
+  const value = await slow.locator("#source").inputValue();
+  await slow.close();
+  assert(arrived(), "the .docx code never arrived");
+  assert(value === "typed during the import", `value: ${JSON.stringify(value)}`);
+  return "the .docx code arrived after the edit, and the textarea kept the edit";
 });
 
 await browser.close();
