@@ -100,4 +100,19 @@ describe("The X thread splits at sentence boundaries", () => {
     expect(textParts).toHaveLength(1);
     expect(textParts[0]).not.toContain("const a = 1;");
   });
+
+  // Review finding 1.3, docs/reviews/2026-09-20-lib-transform-groups-2-3.md.
+  it("splits a code line longer than the limit with no part that holds only a fence", () => {
+    const source = ["```js", `const x = "${"y".repeat(400)}";`, "```", ""].join("\n");
+
+    const { x } = transform(source);
+
+    for (const part of x) expect(body(part).trim()).not.toMatch(/^`{3}\w*$/);
+    // The block is 421 graphemes with its fences, and a part holds 275 before the counter.
+    // Two parts are enough. The broken split gave four: a fence, two pieces, a fence.
+    expect(x).toHaveLength(2);
+    expect(body(x[0])).toMatch(/^```/);
+    expect(body(x[1])).toMatch(/```$/);
+    for (const part of x) expect(count(part)).toBeLessThanOrEqual(280);
+  });
 });
