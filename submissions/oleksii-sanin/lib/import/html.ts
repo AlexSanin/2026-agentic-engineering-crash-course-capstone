@@ -1,7 +1,7 @@
 /**
  * HTML to markdown: the reverse of the pipeline that the transform uses, with one tree pass for
- * Google Docs in the middle. `app/tool.tsx` loads this module on demand, so the first page load
- * carries none of it.
+ * Google Docs in the middle. `importFile` and `paste` load this module on demand, so the first page
+ * load carries none of it.
  *
  * ponytail: Word puts a list on the clipboard as paragraphs that start with a bullet character, so
  * a rich-text paste from Word gives paragraphs, not a markdown list. A `.docx` file keeps the list,
