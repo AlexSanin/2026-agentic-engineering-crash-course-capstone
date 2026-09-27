@@ -31,6 +31,14 @@ describe("LinkedIn output is plain text", () => {
     expect(lines[1]).toBe("https://example.com/a?b=1");
   });
 
+  // docs/reviews/2026-09-27-task-6-5-fixes-round-2.md, finding 5: the spec rule had no test.
+  it("keeps a bare URL where the prose has it, in LinkedIn and in X", () => {
+    const { linkedin, x } = transform("Visit https://example.com/a today.\n");
+
+    expect(linkedin).toBe("Visit https://example.com/a today.");
+    expect(x).toEqual(["Visit https://example.com/a today.\n\n1/1"]);
+  });
+
   // Review finding 1.6: a link whose text is its target printed the URL twice.
   it("prints a bare link once", () => {
     expect(transform("<https://example.com/a>\n").linkedin).toBe("https://example.com/a");
