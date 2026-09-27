@@ -36,7 +36,7 @@ Spec first, code second. Every significant change is an OpenSpec change.
 ## Commands (pnpm only — never npm or yarn)
 
 - `pnpm check` — typecheck + lint + tests. Run it before you say a task is done. Quote the output.
-- `pnpm dev` — dev server on http://localhost:3000. Never start a second one.
+- `pnpm dev` — dev server on http://localhost:3033. Never start a second one.
 - `pnpm hooks:selftest` — proves the hooks work, without an agent.
 - `pnpm agent:log` — summary of `.agent-log/actions.jsonl`: what you actually did this session.
 
