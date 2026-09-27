@@ -86,6 +86,8 @@ describe("The X thread splits at sentence boundaries", () => {
     // The URL sits in exactly one part, uncut. A split inside it would give two parts that
     // each hold a piece, and neither piece would be a link any more.
     expect(x.filter((part) => part.includes(url))).toHaveLength(1);
+    // The spec puts each URL on its own line (review finding 4.3).
+    expect(x.some((part) => body(part).split("\n").includes(url))).toBe(true);
     for (const part of x) expect(count(part)).toBeLessThanOrEqual(280);
   });
 
