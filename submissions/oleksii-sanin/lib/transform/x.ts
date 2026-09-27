@@ -27,13 +27,14 @@ function splitWords(text: string, budget: number): string[] {
       current += word;
       continue;
     }
-    if (current.trim()) out.push(current.trim());
     if (graphemes(word) <= budget) {
+      if (current.trim()) out.push(current.trim());
       current = word;
       continue;
     }
     // One "word" longer than the whole budget, such as a long URL. Graphemes are the last resort.
-    const pieces = splitGraphemes(word, budget);
+    // The split starts from `current`, so the part in progress fills before the next one opens.
+    const pieces = splitGraphemes(current + word, budget);
     out.push(...pieces.slice(0, -1));
     current = pieces.at(-1) ?? "";
   }

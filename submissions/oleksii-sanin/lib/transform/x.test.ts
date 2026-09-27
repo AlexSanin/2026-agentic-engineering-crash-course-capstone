@@ -48,6 +48,18 @@ describe("The X thread splits at sentence boundaries", () => {
     expect(words).toEqual(source.split(/\s+/).filter(Boolean));
   });
 
+  // Review finding 1.2, docs/reviews/2026-09-20-lib-transform-groups-2-3.md.
+  it("splits a word longer than a part from the part in progress", () => {
+    const source = `See https://example.com/${"a".repeat(400)} now.`;
+
+    const { x } = transform(source);
+
+    // 429 graphemes fit in two parts of 275. The broken split gave three: the first part held
+    // the 24 graphemes before the long word and nothing else.
+    expect(x).toHaveLength(2);
+    expect(count(body(x[0]))).toBe(275);
+  });
+
   it("keeps a family emoji whole and counts it as one grapheme", () => {
     const source = `${[1, 2, 3].map(sentence).join(" ")} The end is here ${FAMILY}.`;
 
