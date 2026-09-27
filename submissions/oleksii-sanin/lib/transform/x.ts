@@ -1,4 +1,4 @@
-import { type Block, graphemes, sentences, splitGraphemes, words } from "./ast";
+import { type Block, fence, graphemes, sentences, splitGraphemes, words } from "./ast";
 
 /**
  * ponytail: the ceiling is the grapheme count.
@@ -16,6 +16,9 @@ const LIMIT = 280;
 
 /** Room for the `\n\n` and the `n/total` counter that each part carries. */
 const reserve = (total: number): number => 2 + 2 * String(total).length + 1;
+
+/** Room for the two fences that each piece of a code block carries. */
+const FENCES = graphemes(fence(""));
 
 /** Cut one oversized sentence at a word boundary. No part may cut a word in half. */
 function splitWords(text: string, budget: number): string[] {
@@ -59,8 +62,8 @@ function splitLines(text: string, budget: number): string[] {
       current = line;
       continue;
     }
-    // A line longer than the whole budget. The split starts from `current`, so the opening
-    // fence shares a part with code, and the last piece stays open for the closing fence.
+    // A line longer than the whole budget. The split starts from `current`, so the part in
+    // progress fills before the next one opens.
     const pieces = splitGraphemes(candidate, budget);
     out.push(...pieces.slice(0, -1));
     current = pieces.at(-1) ?? "";
@@ -87,8 +90,8 @@ function pack(blocks: Block[], budget: number): string[] {
   for (const block of blocks) {
     if (block.kind === "code") {
       flush();
-      if (graphemes(block.text) <= budget) push(block.text);
-      else splitLines(block.text, budget).forEach(push);
+      // Each piece opens and closes its own fence, so a piece never starts mid-block.
+      splitLines(block.text, budget - FENCES).map(fence).forEach(push);
       continue;
     }
 

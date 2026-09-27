@@ -127,4 +127,27 @@ describe("The X thread splits at sentence boundaries", () => {
     expect(body(x[1])).toMatch(/```$/);
     for (const part of x) expect(count(part)).toBeLessThanOrEqual(280);
   });
+
+  // The open edge of finding 1.3: a line of 546 filled two parts exactly, and the closing
+  // fence got a part of its own. 534 fills two parts exactly under the re-fenced split.
+  it.each([400, 534, 546])("fences each piece of a code line of %i characters", (n) => {
+    const line = "y".repeat(n);
+
+    const { x } = transform(["```", line, "```", ""].join("\n"));
+
+    for (const part of x) expect(body(part)).toMatch(/^```\ny+\n```$/);
+    expect(x.map((part) => body(part).slice(4, -4)).join("")).toBe(line);
+    for (const part of x) expect(count(part)).toBeLessThanOrEqual(280);
+  });
+
+  // Review finding 1.4: parts 3 to 6 lost the opening fence, and the indent of their first line.
+  it("keeps the fences and the indent on every piece of a long code block", () => {
+    const lines = Array.from({ length: 30 }, (_, i) => `    const value${i} = ${i};`);
+
+    const { x } = transform(["```ts", ...lines, "```", ""].join("\n"));
+
+    expect(x.length).toBeGreaterThan(2);
+    for (const part of x) expect(body(part)).toMatch(/^```\n {4}const [^]*\n```$/);
+    expect(x.flatMap((part) => body(part).split("\n").slice(1, -1))).toEqual(lines);
+  });
 });

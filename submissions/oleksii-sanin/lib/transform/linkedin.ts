@@ -1,4 +1,4 @@
-import { type Block, sentences } from "./ast";
+import { type Block, fence, sentences } from "./ast";
 
 /** LinkedIn stops showing a post beyond this length. */
 const LIMIT = 3000;
@@ -10,7 +10,9 @@ const LIMIT = 3000;
  * and it puts every href on a line of its own. This function adds the cut.
  */
 export function linkedin(blocks: Block[]): { text: string; truncated: boolean } {
-  const full = blocks.map((block) => block.text).join("\n\n");
+  const full = blocks
+    .map((block) => (block.kind === "code" ? fence(block.text) : block.text))
+    .join("\n\n");
   if (full.length <= LIMIT) return { text: full, truncated: false };
 
   let out = "";

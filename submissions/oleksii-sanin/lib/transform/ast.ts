@@ -18,8 +18,12 @@ export type HastNode = {
 export type Block = {
   /** A code block never merges with prose, and it never splits at a sentence. */
   kind: "code" | "text";
+  /** The plain text. For a code block, the code without its fences. */
   text: string;
 };
+
+/** Wrap code in the fences that the plain-text outputs print. */
+export const fence = (code: string): string => `\`\`\`\n${code}\n\`\`\``;
 
 const GRAPHEMES = new Intl.Segmenter("en", { granularity: "grapheme" });
 const SENTENCES = new Intl.Segmenter("en", { granularity: "sentence" });
@@ -71,7 +75,7 @@ export function toBlocks(tree: HastNode): Block[] {
 
     if (node.tagName === "pre") {
       const code = textOf(node).replace(/\n+$/, "");
-      if (code.trim()) blocks.push({ kind: "code", text: `\`\`\`\n${code}\n\`\`\`` });
+      if (code.trim()) blocks.push({ kind: "code", text: code });
       continue;
     }
 
