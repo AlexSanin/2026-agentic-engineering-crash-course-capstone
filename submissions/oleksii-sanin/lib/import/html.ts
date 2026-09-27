@@ -32,8 +32,14 @@ const safe = (url: unknown): boolean => {
 };
 
 /**
- * Move the spaces at the edges of a mark outside it. Markdown does not read `**bold **word` as bold,
- * and `remark-stringify` then writes the space as `&#x20;`.
+ * Move the spaces at the edges of a mark or a link outside it. Markdown does not read `**bold **word`
+ * as bold, and `remark-stringify` then writes the space as `&#x20;`. The pass runs from the leaves up,
+ * so a space inside `<b><a>link </a></b>` moves out of both.
+ *
+ * ponytail: a mark that starts or ends with another mark or a link, next to a letter, still prints
+ * that letter as a character reference: `x<b><i>y</i></b>z` gives `&#x78;**_y_**&#x7A;`.
+ * `remark-stringify` does this to keep the emphasis, and the markdown renders right. Only the text
+ * in the textarea is hard to read. Post-process the references if users paste mid-word styles.
  */
 function edges(mark: HastNode): HastNode[] {
   const first = mark.children?.[0];
@@ -73,7 +79,7 @@ function clean(node: HastNode): HastNode[] {
   if (tag === "b" && String(node.properties?.id ?? "").startsWith("docs-internal-guid")) {
     return node.children ?? [];
   }
-  if (/^(b|strong|i|em)$/.test(tag)) return edges(node);
+  if (/^(a|b|strong|i|em)$/.test(tag)) return edges(node);
   if (tag === "span") {
     const style = String(node.properties?.style ?? "");
     const italic = /font-style:\s*italic/.test(style) ? wrap("em", node) : node;

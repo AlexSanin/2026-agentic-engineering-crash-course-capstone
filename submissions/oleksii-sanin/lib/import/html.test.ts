@@ -100,6 +100,11 @@ describe("HTML converts to markdown", () => {
     expect(htmlToMarkdown("<p>a<b> </b>c<b></b>d</p>").trim()).toBe("a cd");
   });
 
+  // Finding 7: a link inside a mark kept its space, and the mark printed `&#x61;` next to it.
+  it("moves the spaces at the edge of a link out of the mark around it", () => {
+    expect(htmlToMarkdown('<p><b><a href="https://x.com">link </a></b>after</p>').trim()).toBe("**[link](https://x.com)** after");
+  });
+
   // Finding 2: `/\s*$/` took 4.6 s here.
   it("reads a long run of spaces inside a mark in linear time", () => {
     const start = performance.now();
