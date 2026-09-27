@@ -17,19 +17,22 @@ const TABS = [
   { id: "email", label: "Email" },
   { id: "x", label: "X thread" },
   { id: "linkedin", label: "LinkedIn" },
+  { id: "jira", label: "Jira" },
+  { id: "gdocs", label: "Google Docs" },
 ] as const;
 
 type TabId = (typeof TABS)[number]["id"];
 
-function CopyButton({ text, label = "Copy" }: { text: string; label?: string }) {
+/** With `html`, the button copies rich text, and `text` is the plain-text entry beside it. */
+function CopyButton({ text, html, label = "Copy" }: { text: string; html?: string; label?: string }) {
   const [status, setStatus] = useState<"idle" | "copied" | "failed">("idle");
 
   return (
     <button
       type="button"
-      disabled={text === ""}
+      disabled={(html ?? text) === ""}
       onClick={async () => {
-        setStatus(await copy(text, navigator.clipboard));
+        setStatus(await copy(text, navigator.clipboard, html));
         setTimeout(() => setStatus("idle"), 1500);
       }}
       className="rounded-md border border-black/15 px-3 py-1 text-xs font-medium transition hover:bg-black/5 disabled:cursor-not-allowed disabled:opacity-40 dark:border-white/20 dark:hover:bg-white/10"
@@ -53,6 +56,8 @@ function Output({ text }: { text: string }) {
 export function Tool() {
   const [markdown, setMarkdown] = useState("");
   const [result, setResult] = useState<TransformResult | null>(null);
+  // The markdown that produced `result`. The visitor can edit the textarea after the transform.
+  const [source, setSource] = useState("");
   const [tab, setTab] = useState<TabId>("blog");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -73,6 +78,8 @@ export function Tool() {
         return;
       }
       setResult(body as TransformResult);
+      // `markdown` is the value of the render that started this run, not the textarea of now.
+      setSource(markdown);
     } catch {
       setResult(null);
       setError("The transform did not reach the server.");
@@ -150,8 +157,9 @@ export function Tool() {
               </span>
               <CopyButton
                 key={tab}
-                text={tab === "x" ? result.x.join("\n\n") : result[tab]}
-                label={tab === "x" ? "Copy the thread" : "Copy"}
+                text={tab === "x" ? result.x.join("\n\n") : tab === "gdocs" ? source : result[tab]}
+                html={tab === "gdocs" ? result.gdocs : undefined}
+                label={tab === "x" ? "Copy the thread" : tab === "gdocs" ? "Copy as rich text" : "Copy"}
               />
             </div>
 

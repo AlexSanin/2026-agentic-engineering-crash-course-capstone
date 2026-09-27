@@ -16,10 +16,10 @@
 
 ## 3. Six tabs and the rich-text copy
 
-- [ ] 3.1 Add `Jira` and `Google Docs` to `TABS` in `app/tool.tsx`.
-- [ ] 3.2 Keep the markdown that produced the result beside the result. Do not read the current textarea for the copy.
-- [ ] 3.3 Give `CopyButton` an optional `html` prop. With it, write one `ClipboardItem` with a `text/html` entry and a `text/plain` entry.
-- [ ] 3.4 Run `pnpm check`. It must exit 0. Commit the page change.
+- [x] 3.1 Add `Jira` and `Google Docs` to `TABS` in `app/tool.tsx`.
+- [x] 3.2 Keep the markdown that produced the result beside the result. Do not read the current textarea for the copy.
+- [x] 3.3 Give `CopyButton` an optional `html` prop. With it, write one `ClipboardItem` with a `text/html` entry and a `text/plain` entry.
+- [x] 3.4 Run `pnpm check`. It must exit 0. Commit the page change.
 
 ## 4. Dependencies
 
