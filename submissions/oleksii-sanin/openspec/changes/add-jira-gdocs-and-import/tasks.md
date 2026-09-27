@@ -61,7 +61,7 @@
 ## 9. Manual check and proof trail
 
 - [ ] 9.1 Run `pnpm dev`. The human runs each page scenario of `transform-tool` and `markdown-import` once, including the paste into Google Docs and the paste into Jira. Save each result to `docs/runs/`. Record a failed scenario as failed.
-- [ ] 9.2 In the same run, check the network tab. The first load fetches no import chunk. A `.docx` open sends no request.
+- [x] 9.2 In the same run, check the network tab. The first load fetches no import chunk. A `.docx` open sends no request.
 - [ ] 9.3 If Google Docs joins the lines of a `<pre>` block, apply the `<br>` fallback from `design.md`. Add the test first.
 - [ ] 9.4 Run the `reviewer` subagent on the diff of this change. Save the output to `docs/reviews/`. Fix each finding, or record why it stands unfixed.
 - [ ] 9.5 Add a row to `docs/autonomy-log.md` for each group, as it happens. Record who decided.
