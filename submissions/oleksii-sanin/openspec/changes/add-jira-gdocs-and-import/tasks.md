@@ -36,11 +36,11 @@
 
 ## 6. Jira to markdown
 
-- [ ] 6.1 Write `lib/import/fixtures/round-trip.md`. It holds every construct that `lib/transform/jira.ts` writes.
-- [ ] 6.2 Write `lib/import/jira.test.ts` for the round trip, the `{panel}` scenario and the `h2. Setup` scenario. Run it. It must fail.
-- [ ] 6.3 Create `lib/import/jira.ts`. Export `jiraToMarkdown(text)`. Run the block rules first. Take `{{…}}` out before the inline rules run.
-- [ ] 6.4 Add the `ponytail:` comment. Name tables, panels, colours, mentions and `\\` line breaks as the ceiling.
-- [ ] 6.5 Run `pnpm check`. It must exit 0. Commit the Jira conversion.
+- [x] 6.1 Write `lib/import/fixtures/round-trip.md`. It holds every construct that `lib/transform/jira.ts` writes.
+- [x] 6.2 Write `lib/import/jira.test.ts` for the round trip, the `{panel}` scenario and the `h2. Setup` scenario. Run it. It must fail.
+- [x] 6.3 Create `lib/import/jira.ts`. Export `jiraToMarkdown(text)`. Run the block rules first. Take `{{…}}` out before the inline rules run.
+- [x] 6.4 Add the `ponytail:` comment. Name tables, panels, colours, mentions and `\\` line breaks as the ceiling.
+- [x] 6.5 Run `pnpm check`. It must exit 0. Commit the Jira conversion.
 
 ## 7. .docx to markdown
 
