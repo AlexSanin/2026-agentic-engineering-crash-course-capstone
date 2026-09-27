@@ -121,3 +121,40 @@ Review of `add-jira-gdocs-and-import`: lib/, app/ and package.json from 77d1579 
 - **Real Google Docs clipboard:** the fixture is missing (known item), so I tested only hand-made HTML in the Google Docs shape.
 - **mammoth in the browser (`{ arrayBuffer }`):** I did not run the page. For that path I relied on `docs/runs/2026-09-27-browser-run.txt`, and I did not review `docs/runs/2026-09-27-browser-run.mjs`.
 - **HEAD moved:** it moved to b49ed24 during the review. That commit touches only docs/autonomy-log.md, which is out of scope.
+
+---
+
+## Outcome of each finding
+
+Written by the session that fixed the findings, on 2026-09-27. Each fix got a test that failed
+first, except where the row says otherwise. The human made three decisions: finding 13 stays as a
+named ceiling, the rule violation is fixed by a move to `lib/`, and the Google Docs fixture is
+hand-made. The agent made every other choice below.
+
+| # | Outcome | Commit | Proof |
+|---|---------|--------|-------|
+| 1 | Fixed. A table becomes the text of its cells, and a strike becomes plain text. | `cfa5bb1` | `html.test.ts`: "turns a table and struck-through text into plain text" |
+| 2 | Fixed. The URL is kept before the bold rule runs. | `66d14b5` | `import/jira.test.ts`: "keeps the stars of a link URL". The round-trip fixture holds such a link. |
+| 3 | Fixed. `<` and a backtick get a backslash. | `66d14b5` | "keeps angle brackets and backticks as text", and the fixture |
+| 4 | Fixed. Only `http:`, `https:`, `mailto:` and relative URLs stay. Control characters and spaces are skipped before the check. | `cfa5bb1` | "keeps the text and drops the link of …": 5 cases, one with a tab inside `javascript:` |
+| 5 | Fixed by the rule of finding 4, which ignores letter case. | `cfa5bb1` | "drops an unsafe image, audio, video, a frame and a form field" |
+| 6 | Fixed. A counter in a ref numbers each import and edit. | `08ecb9d` | Browser run check "Finding 6" in `docs/runs/2026-09-27-browser-run-fixes.txt`. With the guard removed, that check failed. No Vitest case: the guard is component state. |
+| 7 | Fixed. The fence is one backtick longer than the longest run inside, and 3 at least. | `66d14b5` | "gives code that holds backticks a longer fence", and the fixture |
+| 8 | Fixed in part. A span with a backtick inside gets a longer mark and padding. `{{a}}{{b}}` still gives one span: a `ponytail:` comment names it, because the transform never writes it. | `66d14b5` | Same test, and the fixture |
+| 9 | Fixed. `hN. ` and `bq. ` at a line start get `\.`. How Jira shows `h2\.` is not checked in Jira. | `51a5e2e` | `transform/jira.test.ts`: "escapes a heading mark and a quote mark at the start of a line", and the fixture |
+| 10 | Fixed. An inner quote joins the outer `{quote}`. The nesting is lost, because Jira cannot nest `{quote}`. | `51a5e2e` | "joins a nested block quote into the outer quote" |
+| 11 | Fixed on both sides. The Jira output has no blank line before the code, and the import indents the code under the item. | `51a5e2e`, `66d14b5` | "keeps a code block in a list item with no blank line before it", "keeps a code block under the list item before it", and the fixture |
+| 12 | Fixed. The Jira output writes `!src!`, and the import reads it. The alt text is lost. | `51a5e2e`, `66d14b5` | "uses the bang form for an image", "reads an image", and the fixture |
+| 13 | Stands. The human chose a named ceiling. A `ponytail:` comment in `lib/transform/jira.ts` names it. Test `\}` inside `{{…}}` in Jira during task 9.1. | `51a5e2e` | None. The Jira behaviour is not known. |
+| 14 | Fixed by the rule of finding 4: an `<a>` with no href keeps its text. Media, frames and form fields are dropped. | `cfa5bb1` | The `<a id="_Toc1">` case, and the media case |
+| 15 | Fixed. The emphasis mark is `*`, and the spaces at the edge of a mark move outside it. An empty mark keeps only its spaces. | `cfa5bb1` | "writes marks that stay readable inside a word and next to a space" |
+| 16 | Fixed. An import with no text gives a message, and the textarea keeps its draft. | `a7bfb99` | `file.test.ts` and `clipboard.test.ts`: "gives a message, not an empty text, …", and the browser run check "Finding 16" |
+| 17 | Fixed. The control stays off until the textarea changes. | `08ecb9d` | Browser run check "Finding 17". No Vitest case. |
+| 18 | Fixed. The handler clears the message. | `08ecb9d` | Browser run check "Finding 18". No Vitest case. |
+| 19 | Fixed. A scan replaces the `{{…}}` regex, and the link regex does not cross a `[`. | `66d14b5` | "reads a long line of … in linear time": 100,000 characters take 0 to 1 ms. Before the fix they took 2 s, 3.8 s and 17 s. |
+| 20 | Fixed. The placeholders are `` escapes, and the input loses its own copies first. | `66d14b5` | "keeps text that looks like a placeholder" |
+| Missing tests | Added: `<table>` and `<s>`, the `pre` case, the `{code}` parameters, and each listed construct in `round-trip.md`. | `cfa5bb1`, `51a5e2e`, `66d14b5` | The round-trip test now fails if the Jira output stops writing one of them. |
+| Rule violation | Fixed as the human chose: the logic of Open file and Paste rich text moved to `importFile` and `paste` in `lib/`, with Vitest cases. The component guards of findings 6, 17 and 18 have no Vitest case. The browser run checks them, outside `pnpm check`. Convert Jira text calls `jiraToMarkdown`, which has its own tests. | `a7bfb99`, `08ecb9d` | 9 new cases in `file.test.ts` and `clipboard.test.ts` |
+| Spec drift | All four fixed. The code now does what `design.md` says for tables. The round-trip fixture holds findings 2, 3, 7, 8, 11 and 12. The escape covers `hN. ` and `bq. `. `DATA:` is dropped. | `fc1da50` holds the spec edit | `openspec validate add-jira-gdocs-and-import --strict`: valid |
+
+`pnpm check` at `08ecb9d`: 14 files, 135 tests, exit 0.
