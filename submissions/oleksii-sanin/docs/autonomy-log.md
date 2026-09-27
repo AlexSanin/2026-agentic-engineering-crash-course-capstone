@@ -41,6 +41,7 @@ Course levels:
 | 12 | The spec-driven rule in `AGENTS.md` | 1 · Assistant | The human asked for it mid-task, after seeing the agent plan work that the spec already fixed. | Commit `882960e`. | A rules file. Permanent boundary. |
 | 13 | `scripts/check-loop.mjs` and the two recorded runs | 2 · Assistant to agent | The agent wrote the script, ran both runs, and reverted the deliberate break. | Commit `899b25c`. `docs/runs/` holds both stop reasons. | A script that repeats one command and changes nothing. |
 | 14 | The agent loop, and the fix for review finding 1.3 | 3 · Agent, for one run | The human chose a failure-driven loop over a loop around `/opsx:apply`, and approved the run after the agent said that it edits with no approval for each step. The session agent wrote the red test and the loop change. A headless `claude -p` agent wrote the fix. The session agent read its diff and reproduced the gap it named. | Commits `6f4a787` (red), `a27e75b`, `12e43b2` (green). `docs/runs/2026-09-27-check-loop-agent.txt`: 2 iterations, 1 agent turn, green in 50.9 seconds. `docs/runs/2026-09-27-loop-lock-probe.txt`: the lock refused an edit to a test file. | See the raise of 2026-09-27 below. |
+| 15 | Task 6.5: a fix or a recorded reason for each of the 23 findings in `docs/reviews/` | 2 · Assistant to agent | The human chose which change to apply. For each finding, the agent chose between a fix, a spec edit and a recorded reason. The human did not decide each finding. Two choices are the agent's alone, and the human can reverse them: 1.7 stays unfixed, and 4.3 changes the spec, not the code. | Commits `54a1e9f` to `07b5515`. Each new test for a fix ran red before the fix. `docs/runs/2026-09-27-grapheme-mutants.txt`. `pnpm check` exits 0 with 41 tests in 7 files. The outcome tables close both files in `docs/reviews/`. | `lib/` is at level 2 since 2026-09-20. `app/tool.tsx` is at level 2 by row 10. The spec edits follow the `AGENTS.md` rule: when the code and the spec disagree, edit the spec in a commit of its own. |
 
 ---
 
@@ -155,3 +156,9 @@ Two cases where the agent proposed something wrong, and I stopped it:
 > read the script. I then asked about loops directly. The agent read `scripts/check-loop.mjs`
 > against the rubric wording, "ганяє агента до зеленого", and found that the script called no agent.
 > Its own header said "The loop fixes nothing." Tasks 6.9 and 6.10 exist because of this question.
+
+> **2026-09-27, a reproduction that misread its own result.** On 2026-09-20 the table of reproduced
+> findings said that the input for 1.1 never reached the LinkedIn hard cut. A replay on 2026-09-27
+> showed the opposite. The sentence loop kept nothing, and the hard cut ran. The cut fell on a space,
+> because the input was one character short of the defect. The finding was real, and a different
+> input reaches it. The review file now carries the correction.

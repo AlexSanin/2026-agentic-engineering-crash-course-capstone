@@ -53,3 +53,10 @@ count and exit code in `docs/capstone-spec.md`:
 > `content-length` first, then on the measured byte length, before `JSON.parse`, matching
 > `design.md`'s decision. No `console.log` or write of the markdown text exists anywhere in the
 > handler, so the "server keeps no copy" requirement holds.
+
+## Task 6.5 — 2026-09-27
+
+| # | Outcome | Commit |
+|---|---|---|
+| A | **Spec edited.** The 413 scenario now says "a request body over 100 KB", which is what task 4.3 and the code say. | `54a1e9f` |
+| B | **Fixed, and not tested.** `CopyButton` catches the rejection and shows "Copy failed" for 1.5 seconds. No automated test covers it: the suite runs in the node test environment with no DOM library, and a DOM library is a new dependency, which `AGENTS.md` sends to the human. No browser check ran either, because the Playwright MCP server failed to connect in that session. | `07b5515` |

@@ -31,8 +31,9 @@ reproduced exactly. One did not.
 Not yet reproduced, and still open: 1.4, 1.7, and every item in sections 2, 3 and 4. Section 3.1 is
 the most serious of them: two mutant implementations passed the whole suite.
 
-**Status: nothing on this list is fixed.** Task 6.5 of `tasks.md` stays open. The next session picks
-it up from this table.
+**Status on 2026-09-20: nothing on this list is fixed.** Task 6.5 of `tasks.md` stays open. The next
+session picks it up from this table. The section "Task 6.5 — 2026-09-27" at the end records the
+outcome. It also corrects the 1.1 row above.
 
 ---
 
@@ -245,3 +246,34 @@ of exactly 546 graphemes gives three parts, and part 3 is `"```\n\n3/3"`. The la
 full, so the closing fence has no room. No test covers it.
 
 1.2 has the same shape in `splitWords`, and it is still open, as is everything else in this file.
+
+## Task 6.5 — 2026-09-27
+
+Every finding now has a fix or a recorded reason. For each fix, the new test ran red before the fix
+and green after it. The two exceptions are the test-only findings, which change no code, and B.
+
+| Finding | Outcome | Commit |
+|---|---|---|
+| 1.1 | **Fixed.** The fallback keeps whole grapheme clusters. Correction to the table above: the hard cut did run for the reviewer's input. The sentence loop kept nothing, and the cut fell on the space at unit 3000, so no pair broke. The input missed the defect by one character. `"x".repeat(2999)` and a family emoji reach it: the old code ended on a lone `\uD83D`. | `95e86ce` |
+| 1.2 | **Fixed.** The split starts from the open part. The named input now gives 2 parts, and part 1 holds 275 graphemes. | `ca36ae6` |
+| 1.3 | **Fixed**, with the open edge from the follow-up above. A 546-grapheme line gave a part with only the closing fence. | `3680dad` |
+| 1.4 | **Fixed** by the same commit. A code block holds its code without fences, and each piece gets its own fences. Every line keeps its indent. | `3680dad` |
+| 1.5 | **Fixed.** A nested `pre` becomes its own code block, after its container. A `ponytail:` comment names the ceiling: text below the code in the same container moves above it. | `3d1928a` |
+| 1.6 | **Fixed.** An href that already fills a line of the block text is not printed again. | `b470f07` |
+| 1.7 | **Stands.** The LinkedIn limit counts UTF-16 code units. A code unit count is never lower than a grapheme count, so a post under it fits any count LinkedIn may apply. The reviewer's claim that LinkedIn accepts more is not verified. The cost is an early cut for text heavy in emoji. The comment on `LIMIT` records the reason. | `95e86ce` |
+| 2.1 | **Fixed.** The emoji case puts 30 family emoji at the limit: 272 graphemes fit one part, and 572 code units do not. | `e011f1f` |
+| 2.2 | **Fixed.** The case asserts 3 parts for a fixed source. | `396957d` |
+| 2.3 | **Fixed.** A case reads every module in `lib/transform` and fails on a string literal that names `react`, `react-dom` or `next`. | `396957d` |
+| 2.4 | **Fixed** by the test for 1.5. | `3d1928a` |
+| 2.5 | **Fixed** by the test for 1.1. | `95e86ce` |
+| 2.6 | **Fixed before this task**, as the scope note at the top says. | `2a64a11` |
+| 3.1 | **Fixed.** Both mutants passed all 32 `lib/transform` tests before the change. Mutant A now fails 2 tests, and mutant B fails 1. | `e011f1f`, `docs/runs/2026-09-27-grapheme-mutants.txt` |
+| 3.2 | **Fixed.** `meta.x.chars` is 10 for `# Title`, and `meta.linkedin.chars` is 1200 for a text of 1200 characters. | `396957d` |
+| 3.3 | **Fixed** with 2.2. | `396957d` |
+| 3.4 | **Stands.** It is the spec scenario, and the reviewer said to keep it. | — |
+| 4.1 | **Fixed.** `lib/transform/ast.test.ts` exists. | `e011f1f` |
+| 4.2 | **Fixed** with 2.3. | `396957d` |
+| 4.3 | **Spec edited.** The X output keeps each URL on its own line, because the text of a link element does not hold its target. The URL case now asserts it. | `54a1e9f`, `396957d` |
+| 4.4 | **Spec edited.** A word longer than a whole part splits between graphemes. A new scenario covers it, with the test for 1.2. | `54a1e9f` |
+
+`pnpm check` exits 0 at `07b5515`, with 41 tests in 7 files.
