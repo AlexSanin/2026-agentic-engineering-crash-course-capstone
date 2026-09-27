@@ -47,15 +47,17 @@ The `email` output SHALL be HTML with style attributes on the elements. It MUST 
 ### Requirement: The X thread splits at sentence boundaries
 
 The `x` output SHALL be an array of parts. Each part MUST hold 280 graphemes or fewer, counted with
-`Intl.Segmenter`. A split MUST fall on a sentence boundary. A split MUST NOT fall inside a word. One
-exemption applies: a word longer than a whole part, such as a long URL, splits between graphemes.
-Each part SHALL carry a `n/total` counter.
+`Intl.Segmenter`. A split MUST fall on a sentence boundary. A split MUST NOT fall inside a word. A
+word is a run of characters with no space in it, so a URL is one word. One exemption applies: a word
+longer than a whole part splits between graphemes. Each part SHALL carry a `n/total` counter.
 
-Each URL SHALL sit on its own line, as in the LinkedIn output. The text of a link element does not
-hold its target, so the target needs a line of its own.
+The target of each link element SHALL sit on its own line, as in the LinkedIn output. The text of a
+link element does not hold its target, so the target needs a line of its own. A bare URL in the
+prose stays where it is.
 
-A code block longer than one part SHALL split at a line end. Each piece MUST open and close its own
-fence.
+A code block longer than one part SHALL split at a line end. One exemption applies: a line longer
+than a whole part splits between graphemes. Each piece MUST open and close its own fence. A code
+block inside a list item SHALL follow the text of that item.
 
 The grapheme count is a known ceiling. X applies its own weighted count, so a part with many URLs or
 CJK characters may land a few characters off.
@@ -76,6 +78,10 @@ CJK characters may land a few characters off.
 - **WHEN** the source holds a short phrase and then one word of 400 characters
 - **THEN** the word splits between graphemes, and the part before the first cut is full
 
+#### Scenario: A URL in a long sentence stays whole
+- **WHEN** a sentence longer than one part holds a bare URL that is shorter than one part
+- **THEN** the URL sits whole in one part
+
 #### Scenario: An emoji does not break the count
 - **WHEN** the source holds a sentence that ends with a family emoji
 - **THEN** the emoji stays whole in one part, and the part holds 280 graphemes or fewer
@@ -84,19 +90,27 @@ CJK characters may land a few characters off.
 - **WHEN** the source holds a paragraph and then a fenced code block of 5 lines
 - **THEN** the code block occupies its own part, and the paragraph occupies another
 
-#### Scenario: A code block inside a list item stays in its own part
-- **WHEN** the source holds a list item that holds a fenced code block
-- **THEN** the code block occupies its own part, and the item text occupies another
+#### Scenario: A code block inside a list item or a quote stays in its own part
+- **WHEN** the source holds a list item or a quote that holds a fenced code block
+- **THEN** the code block occupies its own part, and the text occupies another
+
+#### Scenario: Each list item keeps its code below it
+- **WHEN** the source holds a list of two items, and each item holds a fenced code block
+- **THEN** the text of item 1, its code, the text of item 2 and its code come in that order
 
 #### Scenario: A split code block keeps its fences
 - **WHEN** the source holds a fenced code block longer than one part
 - **THEN** every part opens and closes its own fence, and every line keeps its indent
 
+#### Scenario: A code block splits at a line end
+- **WHEN** the source holds a code block with a short line and then a line longer than one part
+- **THEN** the short line ends a part, and only the long line splits between graphemes
+
 ### Requirement: LinkedIn output is plain text
 
-The `linkedin` output SHALL be plain text. Emphasis marks and heading marks MUST be removed. Each URL
-MUST sit on its own line, because LinkedIn breaks an inline link. The output MUST hold 3000 characters
-or fewer.
+The `linkedin` output SHALL be plain text. Emphasis marks and heading marks MUST be removed. The
+target of each link element MUST sit on its own line, because LinkedIn breaks an inline link. A bare
+URL in the prose stays where it is. The output MUST hold 3000 characters or fewer.
 
 #### Scenario: Emphasis marks are removed
 - **WHEN** the source holds `**bold**` and `_italic_`
