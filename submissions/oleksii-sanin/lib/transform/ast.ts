@@ -85,7 +85,8 @@ export function toBlocks(tree: HastNode): Block[] {
     if (node.type !== "element" || !node.tagName) continue;
 
     const base = node.tagName === "ul" || node.tagName === "ol" ? listText(node) : proseOf(node).trim();
-    const urls = hrefsOf(node);
+    // A bare link is already a line of its own.
+    const urls = hrefsOf(node).filter((url) => !base.split("\n").includes(url));
     const text = [base, ...urls].filter(Boolean).join("\n");
     if (text.trim()) blocks.push({ kind: "text", text });
 

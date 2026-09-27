@@ -29,6 +29,11 @@ describe("LinkedIn output is plain text", () => {
     expect(lines[1]).toBe("https://example.com/a?b=1");
   });
 
+  // Review finding 1.6: a link whose text is its target printed the URL twice.
+  it("prints a bare link once", () => {
+    expect(transform("<https://example.com/a>\n").linkedin).toBe("https://example.com/a");
+  });
+
   it("cuts long input at the last complete sentence under 3000 characters", () => {
     const source = Array.from({ length: 40 }, (_, i) => sentence(i + 1)).join(" ");
     expect(source.length).toBeGreaterThan(3000);
