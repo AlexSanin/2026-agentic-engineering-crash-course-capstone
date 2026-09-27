@@ -65,10 +65,12 @@ describe("LinkedIn output is plain text", () => {
   });
 
   // Review finding 1.1: with no complete sentence to keep, the hard cut split a surrogate pair.
-  it("cuts a first sentence over the limit between graphemes", () => {
-    const { linkedin, meta } = transform(`${"x".repeat(2999)}${FAMILY} more.`);
+  // 2999 catches a cut by code unit. 2998 catches a cut by code point, which keeps the first
+  // person of the family and drops the rest (docs/reviews/2026-09-27-task-6-5-fixes.md, finding 7).
+  it.each([2998, 2999])("cuts a first sentence over the limit between graphemes, after %i", (n) => {
+    const { linkedin, meta } = transform(`${"x".repeat(n)}${FAMILY} more.`);
 
-    expect(linkedin).toBe("x".repeat(2999));
+    expect(linkedin).toBe("x".repeat(n));
     expect(meta.linkedin.truncated).toBe(true);
   });
 
