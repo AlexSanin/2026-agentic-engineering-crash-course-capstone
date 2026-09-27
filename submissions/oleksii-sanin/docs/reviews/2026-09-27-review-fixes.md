@@ -8,7 +8,8 @@
 - **Maker:** the session that fixed the findings of the first review.
 - **Result:** 8 correctness findings, and the reviewer marks 3 of them (2, 3 and 4) as regressions
   that the fixes introduced. Missing tests in 2 files, 2 rule violations, 4 spec drift findings.
-- **Status:** NOT FIXED. The human chose to fix these findings in a separate session.
+- **Status:** Fixed in a separate session on 2026-09-27, except where the outcome table at the end
+  says otherwise. No reviewer read those fixes.
 
 The text below is the reviewer's own, unchanged.
 
@@ -132,3 +133,43 @@ All paths are under /Users/sas/bookmarks/i/it/courses/2026-agentic-engineering-c
 - **The page:** I did not run `docs/runs/2026-09-27-browser-run.mjs` and did not start a browser. The stale guard and the `converted` state are checked by reading only. I did not reproduce the mutant-run claim in `docs/runs/2026-09-27-browser-run-fixes.txt`.
 - **mammoth in the browser (`{ arrayBuffer }`) and a real Google Docs clipboard:** not run. The fixture is hand-made.
 - **Working tree:** `git status` now shows `docs/reviews/2026-09-27-add-jira-gdocs-and-import.md` modified as well as `.agent-log/actions.jsonl`. Another session appended an "Outcome of each finding" table while I was reviewing. I did not write that file and did not review the new text, apart from noting that it calls findings 4, 11, 15 and 20 "Fixed", which correctness findings 1, 4, 5 and 7 above contradict.
+
+---
+
+## Outcome of each finding
+
+Written by the session that fixed these findings, on 2026-09-27. Each fix got a test that failed
+first, except where the row says otherwise. The human made four decisions: the stale guard moves to
+`lib/` and the two one-line guards stay in the component, the Jira block-text ceiling goes in the
+spec, each fix gets its own commit, and no reviewer subagent runs on this round. The agent made every
+other choice below.
+
+| # | Outcome | Commit | Proof |
+|---|---------|--------|-------|
+| 1 | Fixed. `clean()` drops `<base>`, so `rehype-remark` resolves no URL against it. `<a href="x">` stays the relative link `[click](x)`. | `b820a1c` | `html.test.ts`: "ignores the base URL of …", 2 cases, both failed first |
+| 2 | Fixed. `edges()` slices at `trimEnd()`. | `8659ee8` | "reads a long run of spaces inside a mark in linear time": 4.5 s before the fix, under 1 s after |
+| 3 | Fixed. `span()` checks the two ends and `trim()`. | `2d4093b` | `import/jira.test.ts`: "reads a long code span that starts with a space in linear time": 4.0 s before the fix |
+| 4 | Fixed. `inline()` restores a URL before it keeps it, so a kept piece never holds another. `[a\|https://x.com/{{id}}]` now gives ``[a](https://x.com/`id`)``, as before `66d14b5`. | `c4efdf1` | "keeps an escape and a code span inside a link or an image URL" |
+| 5 | Fixed on the import side. The Jira output still writes `* {code:js}`, and the import opens the code under an empty item. The agent chose the import side: it also reads a hand-written `* {code}`, and no one checked in Jira how Jira shows either form. | `a07eecb` | The round-trip fixture has a new list whose first item starts with code, and the test checks the mark `* {code:js}\nlet y` |
+| 6 | Fixed in part. The import keeps each text line under an item in that item until a blank line or another block. The Jira output joins a quote in an item into the item, with no blank line. Two things stay lost, because Jira has neither: a loose list becomes tight, and the quote inside the item becomes plain text. The agent assumed that Jira ends a list item at a blank line only. No one checked that in Jira. | `a07eecb`, `6c61141` | "keeps the text under a code block in the list item", and `transform/jira.test.ts`: "joins a quote in a list item into the item, with no blank line" |
+| 7 | Fixed in part. A link inside a mark now moves its edge spaces out: `**[link](https://x.com)** after`. A mark that starts or ends with another mark next to a letter still prints `&#x78;`. `remark-stringify` encodes it on purpose, and the markdown renders right. The agent named this ceiling in a `ponytail:` comment. | `0b7abea` | "moves the spaces at the edge of a link out of the mark around it". The ceiling has no test. |
+| 8 | Fixed. The Jira output writes `%21` for each `!` in an image src. | `e5a1f64` | "encodes a bang in the URL of an image" |
+| Missing tests, `import/jira.test.ts` | Added: the two padding cases, the 100k timing case and the URL cases of finding 4. The padding cases passed at once, because the padding logic was right. | `2d4093b`, `c4efdf1` | "pads a code span with a backtick or a space at each end" |
+| Missing tests, `html.test.ts` | Added: `<base>`, a link inside a mark, and the timing case. The nested marks of finding 7 have no case, because they stand as a ceiling. | `b820a1c`, `8659ee8`, `0b7abea` | See findings 1, 2 and 7 |
+| Rule violation, `app/tool.tsx` | Fixed in part, as the human chose. `sequence()` in `lib/import/file.ts` holds the stale guard. The gate of `Convert Jira text` and the clear of its message stay in the component, one line each. Only the browser run checks those two. `vitest.config.mts` still includes no `*.test.tsx`, and no component test exists. | `2fe70e2`, `b066dce` | `file.test.ts`: "An import that ends late changes nothing", 2 cases. `docs/runs/2026-09-27-browser-run-review-fixes.txt`: 20 passed, 0 failed |
+| Rule violation, task 5.5 | Stands. The task line now names both commits. A fix needs a rewrite of pushed history, and AGENTS.md forbids `git push --force`. | `e29783c` | `tasks.md`, task 5.5 |
+| Spec drift, `design.md` | Fixed. Both paragraphs name `importFile`, `paste` and `sequence` in `lib/`. The comment at the top of `html.ts` names the loaders too. | `d39fb12`, `454edae` | `openspec validate add-jira-gdocs-and-import --strict`: valid |
+| Spec drift, form fields | Fixed in the code: `select`, `textarea` and `button` go. The spec stays as it is. | `b820a1c` | "drops an unsafe image, audio, video, a frame and the form fields" |
+| Spec drift, the `<base>` bypass | Fixed by finding 1. | `b820a1c` | See finding 1 |
+| Spec drift, block text in Jira | Fixed in the spec, as the human chose. The MUST covers inline markup. A line such as `1. step` is a named ceiling, the same as the `ponytail:` comment in `lib/import/jira.ts`. | `d39fb12` | `openspec validate`: valid |
+| Spec drift, two MUSTs with no scenario | Fixed. "A late import changes nothing" has the `sequence()` cases and the browser-run check for finding 6. "The control does not convert the same text twice" has only the browser-run check for finding 17. | `d39fb12` | See the rule violation row |
+
+`pnpm check` at `e29783c`: exit 0, 14 files, 147 tests. Typecheck and lint are clean.
+
+**Not reviewed.** The human said not to run the reviewer subagent on this round. No independent
+check read the commits `b820a1c` to `e29783c`. The last round shows why that matters: its fixes added
+3 regressions that its own tests missed.
+
+**Found while probing, not fixed.** A text line right after a `{quote}` block or a `bq.` line gives
+`> q` and then the text. Markdown reads that text as part of the quote. The output was the same before
+this round, and no finding names it.
