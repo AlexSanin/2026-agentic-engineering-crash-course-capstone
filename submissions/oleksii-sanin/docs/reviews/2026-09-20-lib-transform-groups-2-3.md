@@ -233,3 +233,15 @@ Spec.md:51 says: "A split MUST NOT fall inside a word." `x.ts:35-38` and `x.ts:5
 - No file in `lib/` imports React or Next.
 - The `as never` casts at `index.ts:94-95` rest on the claim in `ast.ts:1-7`. I verified that claim: `@types/hast@3.0.5` sits under `node_modules/.pnpm/` and does not resolve from a direct import. The hand-written type is the correct call here.
 - Conventional Commits hold across the three commits. The red commit at 058e30f does say the test fails.
+
+## Follow-up — 2026-09-27
+
+**1.3 is partly fixed.** Commit `6f4a787` adds the failing test from the input in 1.3. The agent loop
+fixed `splitLines` in `12e43b2`, and the run is in `docs/runs/2026-09-27-check-loop-agent.txt`. The
+split now starts from the open part, which is the fix this review named.
+
+One edge stays open. The agent in the loop named it, and I reproduced it: a fence around a code line
+of exactly 546 graphemes gives three parts, and part 3 is `"```\n\n3/3"`. The last piece is exactly
+full, so the closing fence has no room. No test covers it.
+
+1.2 has the same shape in `splitWords`, and it is still open, as is everything else in this file.

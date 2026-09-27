@@ -40,6 +40,7 @@ Course levels:
 | 11 | The body size check moved before the body read | 1 · Assistant | A background security review reported the placement. The agent fixed it and added the case that proves the early exit. | Commit `4eebf54`. | Security, and a config-shaped boundary. Level 1 by the list below. |
 | 12 | The spec-driven rule in `AGENTS.md` | 1 · Assistant | The human asked for it mid-task, after seeing the agent plan work that the spec already fixed. | Commit `882960e`. | A rules file. Permanent boundary. |
 | 13 | `scripts/check-loop.mjs` and the two recorded runs | 2 · Assistant to agent | The agent wrote the script, ran both runs, and reverted the deliberate break. | Commit `899b25c`. `docs/runs/` holds both stop reasons. | A script that repeats one command and changes nothing. |
+| 14 | The agent loop, and the fix for review finding 1.3 | 3 · Agent, for one run | The human chose a failure-driven loop over a loop around `/opsx:apply`, and approved the run after the agent said that it edits with no approval for each step. The session agent wrote the red test and the loop change. A headless `claude -p` agent wrote the fix. The session agent read its diff and reproduced the gap it named. | Commits `6f4a787` (red), `a27e75b`, `12e43b2` (green). `docs/runs/2026-09-27-check-loop-agent.txt`: 2 iterations, 1 agent turn, green in 50.9 seconds. `docs/runs/2026-09-27-loop-lock-probe.txt`: the lock refused an edit to a test file. | See the raise of 2026-09-27 below. |
 
 ---
 
@@ -61,6 +62,19 @@ code.
 
 Everything in **Permanent boundaries** below stays at level 1, and that includes the route handler at
 `app/api/**`, which `AGENTS.md` sends through plan mode first.
+
+**2026-09-27, level 2 to level 3, for one loop run on `lib/` only.** `scripts/check-loop.mjs` gives
+a headless agent the failure output, and it accepts the agent's edits with no human prompt. Three
+facts made that acceptable:
+
+- The loop is its own detector. It runs `pnpm check` after each agent turn.
+- The agent cannot edit a test file or `app/api/**`. A probe proved the lock before the run, in
+  `docs/runs/2026-09-27-loop-lock-probe.txt`. The lock was not assumed.
+- The agent did not commit. The revert is one `git checkout` of `lib/transform/x.ts`.
+
+The raise covers that one run. The session agent read the diff before the commit. The agent in the
+loop named a gap that its own fix left open, and the gap reproduced: a code line that fills two parts
+exactly still leaves the closing fence in a part of its own. A green loop is not a complete fix.
 
 ### Lower
 
@@ -135,3 +149,9 @@ Two cases where the agent proposed something wrong, and I stopped it:
 > `docs/capstone-spec.md`. I asked where the name came from. The agent traced it, admitted the
 > invention, and pointed at `templates/autonomy-log.md` instead. This file is the result. Nothing in
 > the course names `docs/decisions.md`.
+
+> **2026-09-27, a loop called met with no check.** I asked whether the capstone was done. The agent
+> reported loops as met. It took the status line in `docs/capstone-spec.md` on trust, and it did not
+> read the script. I then asked about loops directly. The agent read `scripts/check-loop.mjs`
+> against the rubric wording, "ганяє агента до зеленого", and found that the script called no agent.
+> Its own header said "The loop fixes nothing." Tasks 6.9 and 6.10 exist because of this question.

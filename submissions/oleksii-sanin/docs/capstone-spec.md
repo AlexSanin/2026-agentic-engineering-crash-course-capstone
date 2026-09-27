@@ -53,7 +53,7 @@ HTTP, not the DOM. A human still has to open the page once.
 **Verify:** `pnpm check` exits 0. Quote the output and the test count in the PR.
 
 **Status today:** met. `pnpm check` runs `next typegen`, then `tsc --noEmit`, then `eslint`, then
-`vitest run`. It exits 0 with 29 cases in 6 files. Every `lib/` module has a test file beside it.
+`vitest run`. It exits 0 with 30 cases in 6 files (29 until `12e43b2` on 2026-09-27). Every `lib/` module has a test file beside it.
 The splitter has a case for each edge case R2 names: a long sentence, a code fence, and a link at
 the limit.
 
@@ -94,12 +94,18 @@ of the command, because the directory did not exist yet.
 
 **Verify:** run the script once. Commit its output. Do not describe the loop in words only.
 
-**Status today:** met. `scripts/check-loop.mjs`, run with `pnpm check:loop`. `docs/runs/` holds two
-real runs, one for each stop reason:
+**Status today:** met on 2026-09-27. It was marked met on 2026-09-20 in error.
 
-- `2026-09-20-check-loop-green.txt`: 1 iteration, exit 0, 3.5 seconds.
-- `2026-09-20-check-loop-red.txt`: the LinkedIn limit lowered to 300, 2 iterations, the retry cap
-  reached, exit 1, 7.3 seconds. `git checkout` reverted the break right after the run.
+The first version of `scripts/check-loop.mjs` repeated `pnpm check` and called no agent, so nothing
+changed between two iterations. The rubric asks for a loop that drives the agent to green. Commit
+`a27e75b` makes the script run `claude -p` with the failure output after each red check. The agent
+may not edit a test file or `app/api/**`.
+
+- `2026-09-27-check-loop-agent.txt`: the run that counts. Red on the test from `6f4a787`, one agent
+  turn, green on iteration 2, 50.9 seconds. The agent changed `lib/transform/x.ts` only.
+- `2026-09-27-loop-lock-probe.txt`: a headless agent refused on an edit to a test file.
+- `2026-09-20-check-loop-green.txt` and `2026-09-20-check-loop-red.txt`: the first version, with no
+  agent. The red run shows two identical red iterations, which is the defect.
 
 ## R6 — maker is not checker
 
@@ -121,7 +127,8 @@ R6 completes when the second review is re-run in full. That report arrived trunc
 session ended while the reviewer was still writing. Its sections on the browser scenarios, on the
 ticked tasks, and on the `AGENTS.md` contradictions never arrived.
 
-Nothing that either reviewer found is fixed yet. Task 6.5 of `tasks.md` is open.
+One finding is partly fixed: 1.3, by the agent loop in `12e43b2`. An edge of it stays open, and the
+review file records it. Every other finding is still open. Task 6.5 of `tasks.md` is open.
 
 ## R7 — The spec came before the code
 
@@ -149,7 +156,8 @@ from the code. `AGENTS.md` now carries the rule itself, in commit `882960e`.
 
 **Verify:** open the PR in a private browser window. Every link resolves without a login.
 
-**Status today:** not met. The branch is local only.
+**Status today:** not met. The branch exists on `origin`. The pull request and the video do not
+exist yet.
 
 ## Traps
 
