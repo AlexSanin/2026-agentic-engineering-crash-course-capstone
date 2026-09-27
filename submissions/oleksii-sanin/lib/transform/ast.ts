@@ -69,6 +69,15 @@ const hrefsOf = (node: HastNode): string[] => {
   return [...here, ...(node.children ?? []).flatMap(hrefsOf)];
 };
 
+/** `url` as the reader sees it. remark percent-encodes an href. A malformed escape stays as it is. */
+const readable = (url: string): string => {
+  try {
+    return decodeURI(url);
+  } catch {
+    return url;
+  }
+};
+
 /** One bullet line for each item. An item that holds only code gets no bullet. */
 const listText = (items: HastNode[]): string =>
   items
@@ -88,8 +97,11 @@ export function toBlocks(tree: HastNode): Block[] {
 
   /** One text block: `base`, then the target of each link in `nodes` on a line of its own. */
   const addText = (nodes: HastNode[], base: string) => {
-    // A bare link is already a line of its own.
-    const urls = nodes.flatMap(hrefsOf).filter((url) => !base.split("\n").includes(url));
+    // A bare link is already a line of its own, with or without a bullet.
+    const lines = base.split("\n").map((line) => line.replace(/^• /, ""));
+    const urls = nodes
+      .flatMap(hrefsOf)
+      .filter((url) => !lines.includes(url) && !lines.includes(readable(url)));
     const text = [base, ...urls].filter(Boolean).join("\n");
     if (text.trim()) blocks.push({ kind: "text", text });
   };

@@ -36,6 +36,18 @@ describe("LinkedIn output is plain text", () => {
     expect(transform("<https://example.com/a>\n").linkedin).toBe("https://example.com/a");
   });
 
+  // docs/reviews/2026-09-27-task-6-5-fixes.md, finding 6.
+  it.each([
+    ["in a list item", "- <https://example.com/a>\n", "• https://example.com/a"],
+    ["with a character that the href encodes", "<https://example.com/ä>\n", "https://example.com/ä"],
+  ])("prints a bare link once %s", (_, source, expected) => {
+    expect(transform(source).linkedin).toBe(expected);
+  });
+
+  it("keeps a link with a malformed escape, and throws nothing", () => {
+    expect(transform("[x](https://example.com/%FF)\n").linkedin).toBe("x\nhttps://example.com/%FF");
+  });
+
   it("cuts long input at the last complete sentence under 3000 characters", () => {
     const source = Array.from({ length: 40 }, (_, i) => sentence(i + 1)).join(" ");
     expect(source.length).toBeGreaterThan(3000);
