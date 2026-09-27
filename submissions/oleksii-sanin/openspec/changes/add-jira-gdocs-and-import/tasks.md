@@ -30,8 +30,8 @@
 
 - [ ] 5.1 Ask the human to copy a heading and a paragraph with one bold word in Google Docs. Read the `text/html` clipboard entry with `osascript`. Save it unchanged to `lib/import/fixtures/gdocs.html`.
 - [ ] 5.2 Write `lib/import/html.test.ts` for the five scenarios of "HTML converts to markdown". The Google Docs scenario reads the fixture. Run it. It must fail.
-- [ ] 5.3 Create `lib/import/html.ts`. Export `htmlToMarkdown(html)`: `rehype-parse`, the Google Docs pass from `design.md`, `rehype-remark`, `remark-stringify`.
-- [ ] 5.4 Add the `ponytail:` comment for the Word list ceiling.
+- [x] 5.3 Create `lib/import/html.ts`. Export `htmlToMarkdown(html)`: `rehype-parse`, the Google Docs pass from `design.md`, `rehype-remark`, `remark-stringify`.
+- [x] 5.4 Add the `ponytail:` comment for the Word list ceiling.
 - [ ] 5.5 Run `pnpm check`. It must exit 0. Commit the HTML conversion.
 
 ## 6. Jira to markdown
