@@ -46,6 +46,12 @@ Course levels:
 | 17 | `add-jira-gdocs-and-import` group 1: the Jira output | 2 · Assistant to agent | The human chose wiki markup over ADF when the change was planned. The agent wrote the walk and the tests with no decision for each file. Two choices are the agent's alone: the escape of `#` and `-` at the start of every text node, not only at the start of a line, and a one-line edit to `app/api/transform/route.test.ts`, which `tasks.md` missed. | Commit `b2d14ba`. The 10 cases in `lib/transform/jira.test.ts` failed before `jira.ts` existed. `pnpm check` exits 0 with 73 tests in 9 files. | `lib/` is at level 2. The route edit adds one key to an expected list in a test. The handler does not change, and `AGENTS.md` sends a one-line diff past plan mode. |
 | 18 | Group 2: the Google Docs output | 2 · Assistant to agent | The human chose a rich-text copy over a `.docx` download when the change was planned. The agent renamed `applyEmailStyles` and wrote the tests. | Commit `4428bb5`. Both `gdocs.test.ts` cases failed first. `email.test.ts` passes with no edit. `pnpm check` exits 0 with 76 tests in 10 files. | Same as row 17. |
 | 19 | Group 3: six tabs and the rich-text copy | 2 · Assistant to agent | The agent put the `ClipboardItem` write in `copy()` in `lib/clipboard.ts`, not in `CopyButton` as task 3.3 says, so that a Vitest case holds it. | Commits `e3c6488` and `dce02ae`. Both new `clipboard.test.ts` cases failed first. `pnpm check` exits 0 with 78 tests in 10 files. The gap is real: no test runs a real browser clipboard. Task 9.1 is the manual check. | `app/tool.tsx` is at level 2 by row 10. |
+| 20 | Group 4: `rehype-parse`, `rehype-remark`, `remark-stringify`, `mammoth` | 1 · Assistant | The human approved the four packages when the change was planned (`proposal.md`). `pnpm add` is on the `ask` list of `.claude/settings.json`, and it ran in this session. The agent added no other package. | Commit `de2b960` holds `package.json`, `pnpm-lock.yaml` and the two ticks only. `pnpm check` exits 0 with 78 tests in 10 files. | A dependency is a permanent boundary. |
+| 21 | Group 5: HTML to markdown, 4 of 5 scenarios | 2 · Assistant to agent | Task 5.1 needs a real Google Docs clipboard capture. The agent asked the human four times and read the clipboard five times. Each read found content from the tool page at `localhost:3033` or from another app. The agent refused to save any of it as the fixture. It committed the four other scenarios and moved to groups 6 to 8. | Commit `5ec12e1`. The four cases failed before `html.ts` existed. Tasks 5.1, 5.2 and 5.5 stay open. | `lib/` is at level 2. A fixture that is not a real capture would prove nothing about the Google Docs format. |
+| 22 | Group 6: Jira to markdown | 2 · Assistant to agent | The agent ran mutants on its own parser before the commit. Two of three survived the first fixture, so the agent extended the fixture and added one case. The agent chose `***` for a Jira rule, because `---` under a text line is a markdown heading. | Commit `6b92eab`. `docs/runs/2026-09-27-jira-import-mutants.txt`: 5 mutants killed, 1 equivalent mutant stands. `pnpm check` exits 0 with 84 tests in 11 files. | `lib/` is at level 2. A green round trip alone did not prove the parser, and the mutants showed it. |
+| 23 | Group 7: `.docx` to markdown | 2 · Assistant to agent | The agent made the fixture with `python-docx` through `uv`, as `design.md` says, and added a guard that proves the fixture holds an image. | Commit `03cc581`. `pnpm check` exits 0 with 102 tests in 14 files. | `lib/` is at level 2. |
+| 24 | Group 8: file routing and the three page controls | 2 · Assistant to agent | The agent chose anchored patterns over an object lookup for the extension, because `x.constructor` finds `Object.prototype.constructor`. The page shows each import message in the existing alert. | Commits `9fa22e1` and `ed83bff`. `pnpm check` exits 0 with 102 tests in 14 files. | `lib/` and `app/tool.tsx` are at level 2. |
+| 25 | The browser run of the page scenarios | 3 · Agent, for one run | The human asked the agent to run Playwright and to test the page itself. The agent chose a script with Playwright from the npx cache, not a project dependency, against the dev server that the human ran. The run wrote to the macOS clipboard, and the human said to keep none of it. | Commit `5bcd53a`. `docs/runs/2026-09-27-browser-run.txt`: 16 checks pass, 1 scenario not run. The first run failed 3 checks on a script bug, and the file says so. | See the raise of 2026-09-27 for the browser run below. |
 
 ---
 
@@ -81,6 +87,17 @@ facts made that acceptable:
 The raise covers that one run. The session agent read the diff before the commit. The agent in the
 loop named a gap that its own fix left open, and the gap reproduced: a code line that fills two parts
 exactly still leaves the closing fence in a part of its own. A green loop is not a complete fix.
+
+**2026-09-27, level 2 to level 3, for one browser run.** The human wrote "run playwrigh and test all
+this by yourself". The agent wrote the script, ran it twice, fixed its own locator bug, and saved the
+result. Three facts made that acceptable:
+
+- The run edits no project file. It reads the page, and it writes only to `docs/runs/`.
+- The detector is the run itself: each check fails with the value it saw.
+- The one side effect is the macOS clipboard, and the human accepted it.
+
+The raise covers that run. It does not cover the two pastes that need a Google account and a Jira
+account. Those stay with the human.
 
 ### Lower
 
