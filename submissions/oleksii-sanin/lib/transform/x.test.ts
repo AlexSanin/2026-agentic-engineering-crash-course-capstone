@@ -48,6 +48,17 @@ describe("The X thread splits at sentence boundaries", () => {
     expect(words).toEqual(source.split(/\s+/).filter(Boolean));
   });
 
+  // docs/reviews/2026-09-27-task-6-5-fixes.md, finding 13: the cut fell at a "-" inside the URL.
+  it("keeps a bare URL whole in a sentence longer than a part", () => {
+    const url = "https://example.com/some-long-path-here/and-more";
+
+    const { x } = transform(`${"word ".repeat(50)}${url} now`);
+
+    expect(x.length).toBeGreaterThan(1);
+    expect(x.filter((part) => part.includes(url))).toHaveLength(1);
+    for (const part of x) expect(count(part)).toBeLessThanOrEqual(280);
+  });
+
   // Review finding 1.2, docs/reviews/2026-09-20-lib-transform-groups-2-3.md.
   it("splits a word longer than a part from the part in progress", () => {
     const source = `See https://example.com/${"a".repeat(400)} now.`;

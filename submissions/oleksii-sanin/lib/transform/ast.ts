@@ -27,7 +27,6 @@ export const fence = (code: string): string => `\`\`\`\n${code}\n\`\`\``;
 
 const GRAPHEMES = new Intl.Segmenter("en", { granularity: "grapheme" });
 const SENTENCES = new Intl.Segmenter("en", { granularity: "sentence" });
-const WORDS = new Intl.Segmenter("en", { granularity: "word" });
 
 /** The grapheme count of `text`. X counts differently, and `x.ts` names that ceiling. */
 export const graphemes = (text: string): number => [...GRAPHEMES.segment(text)].length;
@@ -38,7 +37,15 @@ export const clusters = (text: string): string[] => [...GRAPHEMES.segment(text)]
 export const sentences = (text: string): string[] =>
   [...SENTENCES.segment(text)].map((s) => s.segment);
 
-export const words = (text: string): string[] => [...WORDS.segment(text)].map((s) => s.segment);
+/**
+ * The words of `text` and the spaces between them. A word is a run with no space in it, so a URL
+ * is one word. The `Intl.Segmenter` word granularity cut a URL at each "/" and "-".
+ *
+ * ponytail: text with no spaces, such as Chinese or Japanese, is one long word, so it falls to
+ * the grapheme cut. Split such a word with the `Intl.Segmenter` word granularity if CJK threads
+ * matter.
+ */
+export const words = (text: string): string[] => text.match(/\s+|\S+/g) ?? [];
 
 /** Cut `text` into pieces of at most `budget` graphemes. The last resort, inside one word. */
 export const splitGraphemes = (text: string, budget: number): string[] => {
