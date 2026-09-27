@@ -57,4 +57,25 @@ describe("Jira output is wiki markup", () => {
       "\\# not a heading\n\n\\- not a list, a-b",
     );
   });
+
+  // docs/reviews/2026-09-27-add-jira-gdocs-and-import.md, findings 9 to 12.
+  it("escapes a heading mark and a quote mark at the start of a line", () => {
+    expect(transform("h2. looks like a heading\n\nbq. looks like a quote\n").jira).toBe(
+      "h2\\. looks like a heading\n\nbq\\. looks like a quote",
+    );
+  });
+
+  it("joins a nested block quote into the outer quote", () => {
+    expect(transform("> nested\n>\n>> deeper\n").jira).toBe("{quote}\nnested\n\ndeeper\n{quote}");
+  });
+
+  it("keeps a code block in a list item with no blank line before it", () => {
+    const { jira } = transform(["- a", "  ```js", "  x", "  ```", "- b", ""].join("\n"));
+
+    expect(lines(jira)).toEqual(["* a", "{code:js}", "x", "{code}", "* b"]);
+  });
+
+  it("uses the bang form for an image", () => {
+    expect(transform("Text with ![i](https://example.com/i.png) image\n").jira).toBe("Text with !https://example.com/i.png! image");
+  });
 });

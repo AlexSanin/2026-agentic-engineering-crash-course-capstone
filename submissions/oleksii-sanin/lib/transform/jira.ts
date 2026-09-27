@@ -1,16 +1,20 @@
 import { type HastNode, textOf } from "./ast";
 
 /**
- * Escape what Jira reads as markup: `{ } [ ] * _ | !` anywhere, and `#` or `-` at the start of a
- * line. The start of a text node counts as the start of a line, so a `-` right after bold text is
- * escaped too. Jira shows `\-` as `-`, so that costs nothing.
+ * Escape what Jira reads as markup: `{ } [ ] * _ | !` anywhere, and `#`, `-`, `hN. ` or `bq. ` at
+ * the start of a line. The start of a text node counts as the start of a line, so a `-` right after
+ * bold text is escaped too. Jira shows `\-` as `-`, so that costs nothing. Jira showing `h2\.` as
+ * `h2.` is not checked in Jira.
  *
  * ponytail: `^ ~ + - ??` stay unescaped inside a line, so a text such as `a+b+c` can render with
  * an underline in Jira. A literal backslash stays as it is, and Jira reads `\\` as a line break.
  * Add a mark to the set when a user reports a ticket that renders wrong.
  */
 const escape = (text: string): string =>
-  text.replace(/[{}[\]*_|!]/g, "\\$&").replace(/(^|\n)([#-])/g, "$1\\$2");
+  text
+    .replace(/[{}[\]*_|!]/g, "\\$&")
+    .replace(/(^|\n)([#-])/g, "$1\\$2")
+    .replace(/(^|\n)(h[1-6]|bq)\. /g, "$1$2\\. ");
 
 /**
  * A code block in the code macro. Code is never escaped, because Jira reads no markup inside it.
@@ -33,12 +37,17 @@ function inline(node: HastNode): string {
     case "em":
       return `_${inner}_`;
     case "code":
+      // ponytail: code that holds `}}` closes the macro early, and Jira shows the rest as text. The
+      // human chose to name this ceiling on 2026-09-27. Test `\}` inside `{{…}}` in Jira first.
       return `{{${textOf(node)}}}`;
     case "a":
       return `[${inner}|${String(node.properties?.href ?? "")}]`;
+    case "img":
+      return node.properties?.src ? `!${String(node.properties.src)}!` : "";
     case "pre":
-      // A code block inside a list item.
-      return `\n${code(node)}\n`;
+      // A code block inside a list item. The newline text around it is enough: a blank line would
+      // end the Jira list.
+      return code(node);
     default:
       return inner;
   }
@@ -59,21 +68,22 @@ function list(node: HastNode, prefix: string): string {
     .join("\n");
 }
 
-function block(node: HastNode): string {
+/** One block. Jira cannot nest `{quote}`, so a quote inside a quote joins the outer one. */
+function block(node: HastNode, quoted: boolean): string {
   const tag = node.tagName ?? "";
   if (/^h[1-6]$/.test(tag)) return `${tag}. ${inline(node)}`;
   if (tag === "pre") return code(node);
-  if (tag === "blockquote") return `{quote}\n${blocks(node)}\n{quote}`;
+  if (tag === "blockquote") return quoted ? blocks(node, true) : `{quote}\n${blocks(node, true)}\n{quote}`;
   if (isList(node)) return list(node, "");
   if (tag === "hr") return "----";
   return inline(node);
 }
 
 /** The block children of `node`, one blank line apart. The newline text between them is dropped. */
-const blocks = (node: HastNode): string =>
+const blocks = (node: HastNode, quoted = false): string =>
   (node.children ?? [])
     .filter((child) => child.type === "element")
-    .map(block)
+    .map((child) => block(child, quoted))
     .filter(Boolean)
     .join("\n\n");
 
