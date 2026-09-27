@@ -64,10 +64,11 @@ only the tab of the visitor who opened it. The HTML conversion goes to the same 
 `.docx` path runs through it. Alternative: a second route. It needs its own body guard and its own
 tests, and it still leaves the zip on the server.
 
-**The conversion code loads on demand.** `app/tool.tsx` loads `lib/import/html.ts` and
-`lib/import/docx.ts` with `await import(...)` inside the event handler. The bundler puts each one in
-its own chunk, so the first page load stays as it is. `lib/import/jira.ts` and `lib/import/file.ts`
-have no dependency, so a static import is enough.
+**The conversion code loads on demand.** `importFile` in `lib/import/file.ts` and `paste` in
+`lib/clipboard.ts` load `lib/import/html.ts` and `lib/import/docx.ts` with `await import(...)`. The
+page calls them from its event handlers. The bundler puts each one in its own chunk, so the first page
+load stays as it is. `lib/import/jira.ts` and `lib/import/file.ts` have no dependency, so a static
+import is enough.
 
 **HTML to markdown uses `rehype-parse`, `rehype-remark` and `remark-stringify`.** They are the reverse
 of the pipeline that the transform already uses, and they share its tree types. One small tree pass
@@ -109,9 +110,13 @@ transform route still refuses markdown over 100 KB, and the page already shows t
 convert every paste that carries HTML, and VS Code puts HTML on the clipboard when it copies plain
 markdown. A paste from VS Code would then arrive with every `#` escaped.
 
-**The new controls stay in `app/tool.tsx`.** They set the same `markdown` state that the textarea
+**The buttons of the new controls stay in `app/tool.tsx`, and their logic lives in `lib/`.** AGENTS.md
+wants a test beside new behaviour. `importFile`, `paste` and the stale guard `sequence` therefore
+live in `lib/`, each with Vitest cases. The buttons set the same `markdown` state that the textarea
 sets. A second component file would pass that state through props for three buttons. Split the file
-when it becomes hard to read, not before.
+when it becomes hard to read, not before. The gate of `Convert Jira text` and the clear of its
+message are one line each, and they stay in the component. The browser run in `docs/runs/` checks
+them, outside `pnpm check`.
 
 ## Risks / Trade-offs
 

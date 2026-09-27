@@ -99,11 +99,12 @@ and links MUST survive. Images MUST be dropped.
 
 The Jira conversion SHALL turn Jira wiki markup into markdown. It MUST support every construct that
 the `jira` output of the transform writes. It MUST also read `{noformat}` blocks and `bq.` lines,
-because people who write Jira by hand use both. Text that markdown reads as markup, such as `<` and a
-backtick, MUST stay text. A construct outside that set MUST pass through as text, and the conversion
-MUST NOT throw. The page SHALL hold a `Convert Jira text` control that replaces the textarea content
-with its markdown conversion. The control MUST NOT convert the same text twice: after a conversion,
-it stays off until the textarea changes.
+because people who write Jira by hand use both. Inline text that markdown reads as markup, such as
+`<` and a backtick, MUST stay text. A line that markdown reads as a block, such as `1. step` or
+`> note`, is a named ceiling: it becomes that markdown block. A construct outside that set MUST pass
+through as text, and the conversion MUST NOT throw. The page SHALL hold a `Convert Jira text` control
+that replaces the textarea content with its markdown conversion. The control MUST NOT convert the same
+text twice: after a conversion, it stays off until the textarea changes.
 
 #### Scenario: Markdown survives a round trip through Jira
 - **WHEN** a markdown fixture with headings, emphasis, inline code, a fenced code block, a link, a
@@ -117,6 +118,10 @@ it stays off until the textarea changes.
 #### Scenario: The page converts the textarea
 - **WHEN** a visitor pastes `h2. Setup` into the textarea and uses `Convert Jira text`
 - **THEN** the textarea holds `## Setup`
+
+#### Scenario: The control does not convert the same text twice
+- **WHEN** a visitor uses `Convert Jira text`, and the textarea does not change after it
+- **THEN** the `Convert Jira text` control is off
 
 #### Scenario: A noformat block and a bq. line convert
 - **WHEN** the input holds the line `bq. Quoted` and a `{noformat}` block
@@ -136,6 +141,10 @@ NOT replace the textarea.
 - **WHEN** the clipboard HTML holds only an image with a `data:` URL, and a visitor uses
   `Paste rich text`
 - **THEN** the page shows a message, and the textarea does not change
+
+#### Scenario: A late import changes nothing
+- **WHEN** an import ends after a later import, or after an edit in the textarea
+- **THEN** the textarea keeps the text of the later import or the edit
 
 ### Requirement: The import sends nothing to the server
 
