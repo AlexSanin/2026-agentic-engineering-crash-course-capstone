@@ -34,8 +34,18 @@ export const graphemes = (text: string): number => [...GRAPHEMES.segment(text)].
 /** The grapheme clusters of `text`, in order. */
 export const clusters = (text: string): string[] => [...GRAPHEMES.segment(text)].map((g) => g.segment);
 
+/**
+ * The sentences of `text`. A sentence end is followed by a space or a line end, or it is a
+ * full-width mark, which Chinese and Japanese write with no space. Any other boundary sits inside a
+ * word, such as the "?" of a URL query, so that piece joins the next one.
+ */
 export const sentences = (text: string): string[] =>
-  [...SENTENCES.segment(text)].map((s) => s.segment);
+  [...SENTENCES.segment(text)].reduce<string[]>((out, { segment }) => {
+    const last = out.length - 1;
+    if (last >= 0 && !/[\s。！？]$/.test(out[last])) out[last] += segment;
+    else out.push(segment);
+    return out;
+  }, []);
 
 /**
  * The words of `text` and the spaces between them. A word is a run with no space in it, so a URL

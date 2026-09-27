@@ -74,6 +74,15 @@ describe("LinkedIn output is plain text", () => {
     expect(meta.linkedin.truncated).toBe(true);
   });
 
+  // docs/reviews/2026-09-27-task-6-5-fixes-round-2.md, finding 1.
+  it("cuts before a URL with a query, not after its question mark", () => {
+    const source = `${"Sentence here. ".repeat(197)}Watch https://www.youtube.com/watch?v=dQw4w9WgXcQ now.`;
+
+    const { linkedin } = transform(source);
+
+    expect(linkedin).toBe("Sentence here. ".repeat(197).trimEnd());
+  });
+
   it("marks short input as not truncated", () => {
     const { linkedin, meta } = transform(sentence(1));
 

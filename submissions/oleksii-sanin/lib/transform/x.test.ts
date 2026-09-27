@@ -49,10 +49,14 @@ describe("The X thread splits at sentence boundaries", () => {
   });
 
   // docs/reviews/2026-09-27-task-6-5-fixes.md, finding 13: the cut fell at a "-" inside the URL.
-  it("keeps a bare URL whole in a sentence longer than a part", () => {
-    const url = "https://example.com/some-long-path-here/and-more";
-
-    const { x } = transform(`${"word ".repeat(50)}${url} now`);
+  // Round 2, finding 1: the cut fell after the "?", which Intl.Segmenter reads as a sentence end.
+  const VIDEO = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
+  it.each([
+    ["with a path", "https://example.com/some-long-path-here/and-more", (url: string) => `${"word ".repeat(50)}${url} now`],
+    ["with a query", VIDEO, (url: string) => `${"word ".repeat(46)}${url} now.`],
+    ["as a link target", VIDEO, (url: string) => `${"word ".repeat(43)}ok. Read [the video](${url}) now.`],
+  ])("keeps a URL %s whole in a sentence longer than a part", (_, url, source) => {
+    const { x } = transform(source(url));
 
     expect(x.length).toBeGreaterThan(1);
     expect(x.filter((part) => part.includes(url))).toHaveLength(1);
