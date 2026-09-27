@@ -155,6 +155,36 @@ describe("The X thread splits at sentence boundaries", () => {
     for (const part of x) expect(count(part)).toBeLessThanOrEqual(280);
   });
 
+  // docs/reviews/2026-09-27-task-6-5-fixes.md, findings 8 and 12: the split falls at a line end.
+  it("splits a code block at a line end before a line longer than a part", () => {
+    const long = "y".repeat(300);
+
+    const { x } = transform(["```", "short", long, "```", ""].join("\n"));
+
+    expect(x.map(body)).toEqual([
+      "```\nshort\n```",
+      `\`\`\`\n${long.slice(0, 267)}\n\`\`\``,
+      `\`\`\`\n${long.slice(267)}\n\`\`\``,
+    ]);
+  });
+
+  // The same review, finding 3.
+  it("keeps a blank line at the start of a code block", () => {
+    const { x } = transform("```\n\nfoo\nbar\n```\n");
+
+    expect(x.map(body)).toEqual(["```\n\nfoo\nbar\n```"]);
+  });
+
+  // The same review, findings 4 and 5.
+  it.each([
+    ["a line break", `${"y".repeat(267)}\n${"y".repeat(300)}`],
+    ["a blank line", `${"y".repeat(267)}\n   \n${"y".repeat(265)}`],
+  ])("adds no blank piece for %s at a piece boundary", (_, code) => {
+    const { x } = transform(`\`\`\`\n${code}\n\`\`\`\n`);
+
+    for (const part of x) expect(body(part)).toMatch(/^```\ny+\n```$/);
+  });
+
   // Review finding 1.4: parts 3 to 6 lost the opening fence, and the indent of their first line.
   it("keeps the fences and the indent on every piece of a long code block", () => {
     const lines = Array.from({ length: 30 }, (_, i) => `    const value${i} = ${i};`);

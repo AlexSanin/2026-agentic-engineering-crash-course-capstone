@@ -46,30 +46,38 @@ function splitWords(text: string, budget: number): string[] {
   return out;
 }
 
-/** Cut an oversized code block at a line end, because a sentence boundary means nothing in code. */
+/**
+ * Cut an oversized code block at a line end, because a sentence boundary means nothing in code.
+ * Each piece gets its own fences, so a piece never has to fill before the next one opens.
+ */
 function splitLines(text: string, budget: number): string[] {
   const out: string[] = [];
-  let current = "";
+  // `undefined` marks "no line yet". An empty first line is still a line.
+  let current: string | undefined;
+  const flush = () => {
+    // A piece of blank lines alone would print as two fences with nothing between them.
+    if (current?.trim()) out.push(current);
+    current = undefined;
+  };
 
   for (const line of text.split("\n")) {
-    const candidate = current ? `${current}\n${line}` : line;
+    const candidate = current === undefined ? line : `${current}\n${line}`;
     if (graphemes(candidate) <= budget) {
       current = candidate;
       continue;
     }
+    flush();
     if (graphemes(line) <= budget) {
-      if (current) out.push(current);
       current = line;
       continue;
     }
-    // A line longer than the whole budget. The split starts from `current`, so the part in
-    // progress fills before the next one opens.
-    const pieces = splitGraphemes(candidate, budget);
+    // A line longer than the whole budget. Graphemes are the last resort.
+    const pieces = splitGraphemes(line, budget);
     out.push(...pieces.slice(0, -1));
-    current = pieces.at(-1) ?? "";
+    current = pieces.at(-1);
   }
 
-  if (current) out.push(current);
+  flush();
   return out;
 }
 
