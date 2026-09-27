@@ -36,9 +36,10 @@ decision below, and each one names the alternative it rejected.
 
 **The Jira output is a hast walk in `lib/transform/jira.ts`.** It reads the tree that `transform`
 already builds, like `x.ts` and `linkedin.ts` do. The mapping: `hN.`, `*bold*`, `_italic_`,
-`{{code}}`, `{code:lang}` … `{code}`, `[text|url]`, `*`/`#` list prefixes that stack with depth
-(`*#`), `{quote}` … `{quote}`, `----`. Plain text escapes `{ } [ ] * _ | !` with a backslash, and a
-`#` or a `-` at the start of a line. Alternative: `jira2md`. Its npm record last changed in October
+`{{code}}`, `{code:lang}` … `{code}`, `[text|url]`, `!url!`, `*`/`#` list prefixes that stack with
+depth (`*#`), `{quote}` … `{quote}` with a nested quote joined into the outer one, `----`. Plain text
+escapes `{ } [ ] * _ | !` with a backslash, and a `#`, a `-`, a `hN. ` or a `bq. ` at the start of a
+line. Alternative: `jira2md`. Its npm record last changed in October
 2023, and it brings `marked`, a second markdown parser beside `remark`. Two parsers can disagree on the
 same source, and then the Jira tab no longer matches the other five.
 

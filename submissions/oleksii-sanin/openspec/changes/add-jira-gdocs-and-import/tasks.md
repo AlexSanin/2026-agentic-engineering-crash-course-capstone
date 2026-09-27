@@ -65,5 +65,5 @@
 - [ ] 9.3 If Google Docs joins the lines of a `<pre>` block, apply the `<br>` fallback from `design.md`. Add the test first.
 - [ ] 9.4 Run the `reviewer` subagent on the diff of this change. Save the output to `docs/reviews/`. Fix each finding, or record why it stands unfixed.
 - [ ] 9.5 Add a row to `docs/autonomy-log.md` for each group, as it happens. Record who decided.
-- [ ] 9.6 Run `openspec validate add-jira-gdocs-and-import --strict`. Edit the spec where the code differs from it. Commit that edit apart.
+- [x] 9.6 Run `openspec validate add-jira-gdocs-and-import --strict`. Edit the spec where the code differs from it. Commit that edit apart.
 - [ ] 9.7 Archive `add-markdown-transform` first. Its tasks 6.5 and 6.7 are open. Then archive this change.

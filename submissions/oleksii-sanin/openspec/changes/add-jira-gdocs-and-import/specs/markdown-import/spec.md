@@ -27,6 +27,20 @@ dropped. An image with a `data:` URL MUST be dropped, because one such image can
 100 KB that the transform accepts. The Google Docs clipboard format MUST convert with the emphasis
 that the document shows.
 
+The HTML comes from a clipboard or a file, so it is untrusted. A link or an image with a URL that is
+not `http:`, `https:`, `mailto:` or relative MUST be dropped, in any letter case. A dropped link keeps
+its text. Audio, video, frames and form fields MUST be dropped. The transform parses no GFM, so a
+table MUST convert to the text of its cells, and struck-through text MUST convert to plain text. The
+conversion MUST NOT throw on these elements.
+
+#### Scenario: A script link is dropped
+- **WHEN** the input is `<a href="javascript:alert(1)">click</a>`
+- **THEN** the markdown holds `click`, and it does not hold `javascript:`
+
+#### Scenario: A table and struck-through text become plain text
+- **WHEN** the input holds a table with the cells `a` and `b`, and the struck-through text `old`
+- **THEN** the markdown holds `a`, `b` and `old`, and the conversion does not throw
+
 #### Scenario: A heading and a link survive
 - **WHEN** the input is `<h2>Setup</h2><p>See <a href="https://example.com">docs</a>.</p>`
 - **THEN** the markdown holds the line `## Setup` and the text `[docs](https://example.com)`
@@ -84,9 +98,12 @@ and links MUST survive. Images MUST be dropped.
 ### Requirement: Jira wiki markup converts to markdown
 
 The Jira conversion SHALL turn Jira wiki markup into markdown. It MUST support every construct that
-the `jira` output of the transform writes. A construct outside that set MUST pass through as text, and
-the conversion MUST NOT throw. The page SHALL hold a `Convert Jira text` control that replaces the
-textarea content with its markdown conversion.
+the `jira` output of the transform writes. It MUST also read `{noformat}` blocks and `bq.` lines,
+because people who write Jira by hand use both. Text that markdown reads as markup, such as `<` and a
+backtick, MUST stay text. A construct outside that set MUST pass through as text, and the conversion
+MUST NOT throw. The page SHALL hold a `Convert Jira text` control that replaces the textarea content
+with its markdown conversion. The control MUST NOT convert the same text twice: after a conversion,
+it stays off until the textarea changes.
 
 #### Scenario: Markdown survives a round trip through Jira
 - **WHEN** a markdown fixture with headings, emphasis, inline code, a fenced code block, a link, a
@@ -100,6 +117,25 @@ textarea content with its markdown conversion.
 #### Scenario: The page converts the textarea
 - **WHEN** a visitor pastes `h2. Setup` into the textarea and uses `Convert Jira text`
 - **THEN** the textarea holds `## Setup`
+
+#### Scenario: A noformat block and a bq. line convert
+- **WHEN** the input holds the line `bq. Quoted` and a `{noformat}` block
+- **THEN** the markdown holds `> Quoted`, and a fence around the body of the block
+
+#### Scenario: Angle brackets stay text
+- **WHEN** the input is `returns List<String>`
+- **THEN** the blog HTML of the markdown shows `List<String>` as text
+
+### Requirement: An import that gives no text keeps the draft
+
+The page MUST NOT replace the textarea with an import that holds no text. It MUST show a message
+instead. An import result that arrives after a later import, or after an edit in the textarea, MUST
+NOT replace the textarea.
+
+#### Scenario: Rich text with only an inline image changes nothing
+- **WHEN** the clipboard HTML holds only an image with a `data:` URL, and a visitor uses
+  `Paste rich text`
+- **THEN** the page shows a message, and the textarea does not change
 
 ### Requirement: The import sends nothing to the server
 

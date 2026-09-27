@@ -46,8 +46,11 @@ count, and the character count of each output.
 ### Requirement: Jira output is wiki markup
 
 The `jira` output SHALL be Jira wiki markup. Headings, emphasis, inline code, fenced code, links,
-lists, block quotes and horizontal rules MUST map to their wiki markup form. A character that wiki
-markup reads as markup MUST be escaped with a backslash when it occurs in plain text.
+images, lists, block quotes and horizontal rules MUST map to their wiki markup form. A character that
+wiki markup reads as markup MUST be escaped with a backslash when it occurs in plain text. A `hN. ` or
+`bq. ` at the start of a line counts as markup. Jira cannot nest `{quote}`, so a block quote inside a
+block quote MUST join the outer quote. A code block inside a list item MUST follow the item line with
+no blank line, because a blank line ends a Jira list.
 
 #### Scenario: A heading gets its level prefix
 - **WHEN** the source holds `## Setup`
@@ -84,6 +87,18 @@ markup reads as markup MUST be escaped with a backslash when it occurs in plain 
 #### Scenario: Markup characters in plain text are escaped
 - **WHEN** the source holds the plain text `use {name} or [id]`
 - **THEN** `jira` holds `use \{name\} or \[id\]`
+
+#### Scenario: A text line that starts like a heading is escaped
+- **WHEN** the source holds the paragraph `h2. looks like a heading`
+- **THEN** `jira` holds `h2\. looks like a heading`
+
+#### Scenario: An image uses the bang form
+- **WHEN** the source holds `![alt](https://example.com/i.png)`
+- **THEN** `jira` holds `!https://example.com/i.png!`
+
+#### Scenario: A nested block quote joins the outer quote
+- **WHEN** the source holds a block quote with a second block quote inside it
+- **THEN** `jira` holds one `{quote}` line before both paragraphs and one `{quote}` line after them
 
 ### Requirement: Google Docs output pastes as formatted text
 
