@@ -28,11 +28,11 @@
 
 ## 5. HTML to markdown
 
-- [ ] 5.1 Ask the human to copy a heading and a paragraph with one bold word in Google Docs. Read the `text/html` clipboard entry with `osascript`. Save it unchanged to `lib/import/fixtures/gdocs.html`.
-- [ ] 5.2 Write `lib/import/html.test.ts` for the five scenarios of "HTML converts to markdown". The Google Docs scenario reads the fixture. Run it. It must fail.
+- [x] 5.1 Ask the human to copy a heading and a paragraph with one bold word in Google Docs. Read the `text/html` clipboard entry with `osascript`. Save it unchanged to `lib/import/fixtures/gdocs.html`. **Not captured.** Five clipboard reads gave no Google Docs HTML. On 2026-09-27 the human chose a hand-made fixture in the Google Docs clipboard shape. The paste in 9.1 is the only check against real Google Docs.
+- [x] 5.2 Write `lib/import/html.test.ts` for the five scenarios of "HTML converts to markdown". The Google Docs scenario reads the fixture. Run it. It must fail. The Google Docs case passed at once, because 5.3 landed before the fixture did. It did not fail first.
 - [x] 5.3 Create `lib/import/html.ts`. Export `htmlToMarkdown(html)`: `rehype-parse`, the Google Docs pass from `design.md`, `rehype-remark`, `remark-stringify`.
 - [x] 5.4 Add the `ponytail:` comment for the Word list ceiling.
-- [ ] 5.5 Run `pnpm check`. It must exit 0. Commit the HTML conversion.
+- [x] 5.5 Run `pnpm check`. It must exit 0. Commit the HTML conversion.
 
 ## 6. Jira to markdown
 

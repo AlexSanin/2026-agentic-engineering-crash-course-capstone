@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { htmlToMarkdown } from "./html";
 
@@ -31,5 +32,14 @@ describe("HTML converts to markdown", () => {
     expect(markdown).toContain("![b](https://example.com/b.png)");
     expect(markdown).not.toContain("data:");
     expect(markdown.match(/!\[/g)).toHaveLength(1);
+  });
+
+  // The human chose a hand-made fixture on 2026-09-27. It copies the Google Docs clipboard shape:
+  // the `docs-internal-guid` wrapper with a normal weight, and a style on each span. It is NOT a
+  // captured clipboard, so the paste in task 9.1 is the only proof against real Google Docs.
+  it("keeps only the real bold of Google Docs HTML", () => {
+    const html = readFileSync(new URL("./fixtures/gdocs.html", import.meta.url), "utf8");
+
+    expect(htmlToMarkdown(html).trim().split("\n")).toEqual(["# Release notes", "", "Run the **check** before you push."]);
   });
 });
