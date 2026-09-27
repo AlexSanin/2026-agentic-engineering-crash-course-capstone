@@ -75,6 +75,11 @@ describe("Jira output is wiki markup", () => {
     expect(lines(jira)).toEqual(["* a", "{code:js}", "x", "{code}", "* b"]);
   });
 
+  // docs/reviews/2026-09-27-review-fixes.md, finding 6: the blank line ended the Jira list.
+  it("joins a quote in a list item into the item, with no blank line", () => {
+    expect(lines(transform("- a\n\n  > q\n- b\n").jira)).toEqual(["* a", "q", "* b"]);
+  });
+
   it("uses the bang form for an image", () => {
     expect(transform("Text with ![i](https://example.com/i.png) image\n").jira).toBe("Text with !https://example.com/i.png! image");
   });

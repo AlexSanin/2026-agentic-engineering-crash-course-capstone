@@ -48,6 +48,10 @@ function inline(node: HastNode): string {
       // A code block inside a list item. The newline text around it is enough: a blank line would
       // end the Jira list.
       return code(node);
+    case "blockquote":
+      // A quote inside a list item. Jira cannot put a quote in a list, so its text joins the item. The
+      // trim drops the newline that made a blank line.
+      return inner.trim();
     default:
       return inner;
   }
