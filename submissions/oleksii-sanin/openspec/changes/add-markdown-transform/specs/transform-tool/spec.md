@@ -44,7 +44,7 @@ HTML of the page.
 - **THEN** the handler answers 400, and the body names the missing field
 
 #### Scenario: An oversized body is rejected
-- **WHEN** a client posts a markdown string over 100 KB
+- **WHEN** a client posts a request body over 100 KB
 - **THEN** the handler answers 413, and it does not call the transform
 
 ### Requirement: The tool stores nothing
