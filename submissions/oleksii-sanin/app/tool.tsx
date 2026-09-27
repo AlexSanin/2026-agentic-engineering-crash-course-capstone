@@ -1,15 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import { copy } from "@/lib/clipboard";
+import { importKind } from "@/lib/import/file";
+import { jiraToMarkdown } from "@/lib/import/jira";
 import type { TransformResult } from "@/lib/transform";
 
 /**
  * The tool surface. It is the only client component in the app: it needs state, an event
  * handler and the clipboard.
  *
- * The type import above is erased at build time, so the `unified` stack stays on the server.
+ * The type import above is erased at build time, so the transform stays on the server. The HTML
+ * and `.docx` conversions load with `await import(...)` inside their handlers, so the first page
+ * load carries none of them. `file.ts` and `jira.ts` have no dependency, and they load statically.
  */
 
 const TABS = [
@@ -61,6 +65,41 @@ export function Tool() {
   const [tab, setTab] = useState<TabId>("blog");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const fileInput = useRef<HTMLInputElement>(null);
+
+  /** Put converted markdown in the textarea, or show why the conversion failed. */
+  async function load(convert: () => Promise<string>, failure: string) {
+    try {
+      setMarkdown(await convert());
+      setError("");
+    } catch {
+      setError(failure);
+    }
+  }
+
+  async function openFile(file: File) {
+    const route = importKind(file.name, file.size);
+    if ("error" in route) return setError(route.error);
+    await load(async () => {
+      if (route.kind === "markdown") return file.text();
+      if (route.kind === "html") return (await import("@/lib/import/html")).htmlToMarkdown(await file.text());
+      const { docxToMarkdown } = await import("@/lib/import/docx");
+      return docxToMarkdown({ arrayBuffer: await file.arrayBuffer() });
+    }, `The page could not convert ${file.name}.`);
+  }
+
+  // A button, not a paste handler: VS Code puts HTML on the clipboard when it copies plain markdown.
+  async function pasteRichText() {
+    let html: string;
+    try {
+      const item = (await navigator.clipboard.read()).find((entry) => entry.types.includes("text/html"));
+      if (!item) return setError("The clipboard holds no rich text. Copy from Google Docs, Word or a web page first.");
+      html = await (await item.getType("text/html")).text();
+    } catch {
+      return setError("The page could not read the clipboard. Allow clipboard access, then try again.");
+    }
+    await load(async () => (await import("@/lib/import/html")).htmlToMarkdown(html), "The page could not convert the rich text.");
+  }
 
   async function run() {
     setBusy(true);
@@ -89,6 +128,8 @@ export function Tool() {
   }
 
   const panel = "rounded-lg border border-black/10 dark:border-white/15";
+  const secondary =
+    "rounded-md border border-black/15 px-3 py-2 text-sm transition hover:bg-black/5 disabled:opacity-40 dark:border-white/20 dark:hover:bg-white/10";
 
   return (
     <div className="mt-8 grid gap-6">
@@ -105,7 +146,7 @@ export function Tool() {
           placeholder="# Your post&#10;&#10;Paste markdown here."
           className={`${panel} bg-transparent p-4 font-mono text-sm outline-none focus:border-black/40 dark:focus:border-white/40`}
         />
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <button
             type="button"
             onClick={run}
@@ -113,6 +154,32 @@ export function Tool() {
             className="rounded-md bg-foreground px-4 py-2 text-sm font-medium text-background transition hover:opacity-90 disabled:opacity-50"
           >
             {busy ? "Working" : "Transform"}
+          </button>
+          <button type="button" onClick={() => fileInput.current?.click()} className={secondary}>
+            Open file
+          </button>
+          <input
+            ref={fileInput}
+            type="file"
+            accept=".md,.markdown,.txt,.html,.docx"
+            hidden
+            onChange={(event) => {
+              const file = event.target.files?.[0];
+              // Clear the value, so that the same file can open again.
+              event.target.value = "";
+              if (file) void openFile(file);
+            }}
+          />
+          <button type="button" onClick={pasteRichText} className={secondary}>
+            Paste rich text
+          </button>
+          <button
+            type="button"
+            onClick={() => setMarkdown(jiraToMarkdown(markdown))}
+            disabled={markdown === ""}
+            className={secondary}
+          >
+            Convert Jira text
           </button>
           <span className="text-xs opacity-60">
             Nothing is stored. A reload clears the work.

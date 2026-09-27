@@ -53,10 +53,10 @@
 
 - [x] 8.1 Write `lib/import/file.test.ts`. Cover each supported extension, `photo.png`, and a file of 2 MB. Run it. It must fail.
 - [x] 8.2 Create `lib/import/file.ts`. Export `importKind(name, size)` and the 1 MB limit.
-- [ ] 8.3 Add an `Open file` control to `app/tool.tsx`. Call `importKind` before the file is read. Load `html.ts` and `docx.ts` with `await import(...)` inside the handler.
-- [ ] 8.4 Add a `Paste rich text` control. Read the `text/html` entry with `navigator.clipboard.read()`. Show a message when the clipboard holds no rich text. Add no paste handler to the textarea.
-- [ ] 8.5 Add a `Convert Jira text` control. It replaces the textarea content with its markdown conversion.
-- [ ] 8.6 Run `pnpm check`. It must exit 0. Commit the page controls.
+- [x] 8.3 Add an `Open file` control to `app/tool.tsx`. Call `importKind` before the file is read. Load `html.ts` and `docx.ts` with `await import(...)` inside the handler.
+- [x] 8.4 Add a `Paste rich text` control. Read the `text/html` entry with `navigator.clipboard.read()`. Show a message when the clipboard holds no rich text. Add no paste handler to the textarea.
+- [x] 8.5 Add a `Convert Jira text` control. It replaces the textarea content with its markdown conversion.
+- [x] 8.6 Run `pnpm check`. It must exit 0. Commit the page controls.
 
 ## 9. Manual check and proof trail
 
