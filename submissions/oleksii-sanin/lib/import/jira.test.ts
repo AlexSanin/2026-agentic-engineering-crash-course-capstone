@@ -11,7 +11,10 @@ describe("Jira wiki markup converts to markdown", () => {
 
     // The fixture must reach every construct that the Jira output writes.
     for (const mark of ["h1. ", "h3. ", "*bold*", "_italic_", "{{pnpm check}}", "[link|", "{code:ts}", "{code}",
-      "\n*# ", "\n** ", "\n# ", "\n#* ", "\\*not bold\\*", "\\[not\\|a link\\]", "{quote}", "----", "\\{", "\\*", "\\_", "\\|", "\\!", "\n\\#", "\n\\-"]) {
+      "\n*# ", "\n** ", "\n# ", "\n#* ", "\\*not bold\\*", "\\[not\\|a link\\]", "{quote}", "----", "\\{", "\\*", "\\_", "\\|", "\\!", "\n\\#", "\n\\-",
+      // docs/reviews/2026-09-27-add-jira-gdocs-and-import.md: the constructs that did not round-trip.
+      "|https://example.com/*a*/b]", "!https://example.com/i.png!", "{{a ` b}}", "{{{name}}}", "List<String>", "`tick`",
+      "\nh2\\. ", "\nbq\\. ", "{code}\n```\ninner fence", "* item with code\n{code:js}\n"]) {
       expect(jira, mark).toContain(mark);
     }
     expect(transform(jiraToMarkdown(jira)).blog).toBe(blog);
@@ -40,4 +43,48 @@ describe("Jira wiki markup converts to markdown", () => {
   it("closes a code block that Jira leaves open", () => {
     expect(jiraToMarkdown("{code:js}\nlet a")).toBe("```js\nlet a\n```");
   });
+
+  // docs/reviews/2026-09-27-add-jira-gdocs-and-import.md, missing tests: the macro parameters.
+  it("reads the language of a code macro with parameters", () => {
+    expect(jiraToMarkdown("{code:java|title=A.java}\nx\n{code}")).toBe("```java\nx\n```");
+    expect(jiraToMarkdown("{code:title=A.java}\nx\n{code}")).toBe("```\nx\n```");
+  });
+
+  // Findings 2, 3, 7, 8, 11 and 12, one input each. The round-trip fixture holds them too.
+  it("keeps the stars of a link URL", () => {
+    expect(jiraToMarkdown("[a|https://x.com/*foo*/bar*]")).toBe("[a](https://x.com/*foo*/bar*)");
+  });
+
+  it("keeps angle brackets and backticks as text", () => {
+    expect(transform(jiraToMarkdown("returns List<String>, use `tick` here")).blog).toBe(
+      "<p>returns List&#x3C;String>, use `tick` here</p>",
+    );
+  });
+
+  it("gives code that holds backticks a longer fence", () => {
+    expect(jiraToMarkdown("{code}\n```\ninner\n```\n{code}")).toBe("````\n```\ninner\n```\n````");
+    expect(transform(jiraToMarkdown("{{a ` b}} and {{{a}}}")).blog).toBe("<p><code>a ` b</code> and <code>{a}</code></p>");
+  });
+
+  it("keeps a code block under the list item before it", () => {
+    expect(jiraToMarkdown("* a\n{code:js}\nx\n{code}\n* b")).toBe("- a\n  ```js\n  x\n  ```\n- b");
+  });
+
+  it("reads an image", () => {
+    expect(jiraToMarkdown("see !https://x.com/i.png! and !a.png|thumbnail!")).toBe("see ![](https://x.com/i.png) and ![](a.png)");
+  });
+
+  // Finding 19: the regexes were quadratic, and 40,000 `[` took 4.1 s.
+  it.each(["[", "{", "[a|b "])("reads a long line of %j in linear time", (unit) => {
+    const start = performance.now();
+    jiraToMarkdown(unit.repeat(100_000));
+
+    expect(performance.now() - start).toBeLessThan(1000);
+  });
+
+  // Finding 20: the placeholders are private-use characters, and input can hold them too.
+  it("keeps text that looks like a placeholder", () => {
+    expect(jiraToMarkdown("text \uE0000\uE001 here")).toBe("text 0 here");
+  });
 });
+

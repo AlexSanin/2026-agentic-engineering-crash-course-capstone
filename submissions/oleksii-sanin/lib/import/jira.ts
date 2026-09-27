@@ -11,19 +11,56 @@
 const CODE = /^\{code(?::([\w+#-]+)(?=[|}]))?[^}]*\}$/;
 const HEADING = /^h([1-6])\. (.*)$/;
 const LIST = /^([*#]+) (.*)$/;
-const KEPT = /(\d+)/g;
+// Private-use characters mark a kept piece. The input loses its own copies of them first.
+const KEPT = /\uE000(\d+)\uE001/g;
+
+/** A backtick run longer than any run in `code`, and `min` long at least. */
+const ticks = (code: string, min: number): string =>
+  "`".repeat(Math.max(min, ...(code.match(/`+/g) ?? []).map((run) => run.length + 1)));
 
 /**
- * The inline rules. Code spans and backslash escapes come out first, so that no rule touches them.
- * An escape stays as it is, because markdown reads a backslash before punctuation the same way.
+ * A markdown code span for `code`. Markdown strips one space from each end when both ends hold one,
+ * and a backtick at an end needs a space beside it, so both cases get a space of padding.
+ */
+function span(code: string): string {
+  const mark = ticks(code, 1);
+  const pad = /^`|`$|^ .*\S.* $/.test(code) ? " " : "";
+  return `${mark}${pad}${code}${pad}${mark}`;
+}
+
+/**
+ * Each `{{…}}` as a kept code span. A scan and not a regex: a lazy regex is quadratic on a long line
+ * with no `}}`. A `}` right after the `}}` belongs to the code, so `{{{a}}}` is the code `{a}`.
+ *
+ * ponytail: `{{a}}{{b}}` gives two spans with no space between them, and markdown reads them as one
+ * span. The transform never writes that. Add a space when a user pastes it.
+ */
+function spans(text: string, keep: (value: string) => string): string {
+  let out = "";
+  let at = 0;
+  for (let open = text.indexOf("{{"); open !== -1; open = text.indexOf("{{", at)) {
+    let close = text.indexOf("}}", open + 3);
+    if (close === -1) break;
+    while (text[close + 2] === "}") close++;
+    out += text.slice(at, open) + keep(span(text.slice(open + 2, close)));
+    at = close + 2;
+  }
+  return out + text.slice(at);
+}
+
+/**
+ * The inline rules. Code spans, backslash escapes and URLs come out first, so that no rule touches
+ * them. An escape stays as it is, because markdown reads a backslash before punctuation the same
+ * way. A `<` or a backtick in the text gets a backslash, so that markdown does not read HTML or code.
  */
 function inline(text: string): string {
   const kept: string[] = [];
-  const keep = (value: string): string => `${kept.push(value) - 1}`;
-  return text
-    .replace(/\{\{(.+?)\}\}/g, (_, code: string) => keep(`\`${code}\``))
+  const keep = (value: string): string => `\uE000${kept.push(value) - 1}\uE001`;
+  return spans(text.replace(/[\uE000\uE001]/g, ""), keep)
     .replace(/\\[^\sA-Za-z0-9]/g, keep)
-    .replace(/\[([^|\]]*)\|([^\]]+)\]/g, "[$1]($2)")
+    .replace(/\[([^|[\]]*)\|([^[\]]+)\]/g, (_, label: string, url: string) => `[${label}](${keep(url)})`)
+    .replace(/!([^\s!|]+)(?:\|[^!]*)?!/g, (_, src: string) => `![](${keep(src)})`)
+    .replace(/[<`]/g, "\\$&")
     .replace(/\*([^*\s](?:[^*]*[^*\s])?)\*/g, "**$1**")
     .replace(KEPT, (_, index: string) => kept[Number(index)]);
 }
@@ -49,7 +86,10 @@ export function jiraToMarkdown(text: string): string {
     const code = line.trim().match(CODE);
     if (code || line.trim() === "{noformat}") {
       const [body, stop] = until(i, code ? "{code}" : "{noformat}");
-      out.push(`\`\`\`${code?.[1] ?? ""}`, ...body, "```");
+      const fence = ticks(body.join("\n"), 3);
+      // Right after a list line, the block belongs to that item, so it takes the indent of the item text.
+      const indent = LIST.test(lines[i - 1] ?? "") ? " ".repeat(/^ *(-|1\.) /.exec(out.at(-1) ?? "")?.[0].length ?? 0) : "";
+      out.push(...[fence + (code?.[1] ?? ""), ...body, fence].map((row) => indent + row));
       i = stop;
       continue;
     }
