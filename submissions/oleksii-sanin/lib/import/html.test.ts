@@ -64,15 +64,25 @@ describe("HTML converts to markdown", () => {
     expect(htmlToMarkdown(html).trim()).toBe("click");
   });
 
-  it("drops an unsafe image, audio, video, a frame and a form field", () => {
+  // docs/reviews/2026-09-27-review-fixes.md, spec drift: `select`, `textarea` and `button` kept their text.
+  it("drops an unsafe image, audio, video, a frame and the form fields", () => {
     const markdown = htmlToMarkdown(
       '<p><img src="DATA:image/png;base64,AAAA" alt="x"><img src="javascript:x" alt="y">' +
         '<video src="a.mp4"></video><audio src="a.mp3"></audio><iframe src="https://example.com" title="t"></iframe>' +
-        '<input type="url" value="javascript:x">end</p>',
+        '<input type="url" value="javascript:x"><select><option>a</option></select><textarea>t</textarea>' +
+        "<button>b</button>end</p>",
     );
 
     expect(markdown.trim()).toBe("end");
   });
+
+  // Finding 1: `rehype-remark` resolves each URL against a `<base>`, after the check of the raw URL.
+  it.each(['<base href="javascript://%0aalert(1)/"><a href="x">click</a>', '<base href="javascript:alert(1)"><a href="x">click</a>'])(
+    "ignores the base URL of %s",
+    (html) => {
+      expect(htmlToMarkdown(html).trim()).toBe("[click](x)");
+    },
+  );
 
   it("keeps an http, a mailto and a relative link", () => {
     const markdown = htmlToMarkdown(

@@ -55,13 +55,14 @@ function edges(mark: HastNode): HastNode[] {
  * - Google Docs marks emphasis with a style on a `<span>`, not with `<b>` and `<i>`.
  * - An image with a `data:` URL can hold more than the 100 KB that the transform accepts, and
  *   `safe()` drops it.
- * - `rehype-remark` turns media, frames and form fields into links, so they go.
+ * - `rehype-remark` turns media, frames and form fields into links, so they go. A `<base>` goes too:
+ *   `rehype-remark` resolves each URL against it, after `safe()` checks the raw URL.
  * - The transform parses no GFM. A table becomes the text of its cells, and struck-through text
  *   stays text. `remark-stringify` throws on the GFM nodes otherwise.
  */
 function clean(node: HastNode): HastNode[] {
   const tag = node.tagName ?? "";
-  if (/^(audio|video|iframe|input)$/.test(tag)) return [];
+  if (/^(audio|video|iframe|input|select|textarea|button|base)$/.test(tag)) return [];
   if (tag === "img" && !safe(node.properties?.src)) return [];
   if (node.children) node.children = node.children.flatMap(clean);
   if (tag === "a" && !safe(node.properties?.href)) return node.children ?? [];
