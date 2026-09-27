@@ -42,4 +42,51 @@ describe("HTML converts to markdown", () => {
 
     expect(htmlToMarkdown(html).trim().split("\n")).toEqual(["# Release notes", "", "Run the **check** before you push."]);
   });
+
+  // docs/reviews/2026-09-27-add-jira-gdocs-and-import.md, finding 1. mammoth writes the same tags.
+  it("turns a table and struck-through text into plain text", () => {
+    const markdown = htmlToMarkdown(
+      "<table><thead><tr><th>a</th></tr></thead><tbody><tr><td><p>b</p></td></tr></tbody></table>" +
+        "<p><s>old</s> <del>gone</del> <strike>was</strike></p>",
+    );
+
+    for (const text of ["a", "b", "old gone was"]) expect(markdown).toContain(text);
+  });
+
+  // Findings 4, 5 and 14. mammoth writes an `<a id>` with no href for each Word bookmark.
+  it.each([
+    '<a href="javascript:alert(1)">click</a>',
+    '<a href="JavaScript:alert(1)">click</a>',
+    '<a href="java&#9;script:alert(1)">click</a>',
+    '<a href="data:text/html,x">click</a>',
+    '<a id="_Toc1">click</a>',
+  ])("keeps the text and drops the link of %s", (html) => {
+    expect(htmlToMarkdown(html).trim()).toBe("click");
+  });
+
+  it("drops an unsafe image, audio, video, a frame and a form field", () => {
+    const markdown = htmlToMarkdown(
+      '<p><img src="DATA:image/png;base64,AAAA" alt="x"><img src="javascript:x" alt="y">' +
+        '<video src="a.mp4"></video><audio src="a.mp3"></audio><iframe src="https://example.com" title="t"></iframe>' +
+        '<input type="url" value="javascript:x">end</p>',
+    );
+
+    expect(markdown.trim()).toBe("end");
+  });
+
+  it("keeps an http, a mailto and a relative link", () => {
+    const markdown = htmlToMarkdown(
+      '<a href="https://example.com">a</a> <a href="mailto:me@example.com">b</a> <a href="/docs">c</a> <a href="#top">d</a>',
+    );
+
+    expect(markdown.trim()).toBe("[a](https://example.com) [b](mailto:me@example.com) [c](/docs) [d](#top)");
+  });
+
+  // Finding 15: markdown does not read `**bold **word` as bold, so the output fell back to `&#x20;`.
+  it("writes marks that stay readable inside a word and next to a space", () => {
+    expect(htmlToMarkdown("<p>x<em>y</em>z</p>").trim()).toBe("x*y*z");
+    expect(htmlToMarkdown('<p>one <span style="font-weight:700">bold </span>word</p>').trim()).toBe("one **bold** word");
+    expect(htmlToMarkdown("<p>a<strong> b </strong>c</p>").trim()).toBe("a **b** c");
+    expect(htmlToMarkdown("<p>a<b> </b>c<b></b>d</p>").trim()).toBe("a cd");
+  });
 });
