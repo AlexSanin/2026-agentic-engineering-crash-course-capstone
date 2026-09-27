@@ -86,33 +86,43 @@ export function jiraToMarkdown(text: string): string {
     return [lines.slice(start + 1, stop), stop];
   };
 
+  // The text indent of the list item that the next line continues. Jira ends an item at a blank line
+  // or at another block, so a code block and a text line under an item stay in it.
+  let within = "";
   for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
+    let line = lines[i];
+    const list = line.match(LIST);
+    if (list) {
+      // `* {code}` opens the code on the list line, so the item holds only the code.
+      const opens = CODE.test(list[2].trim()) || list[2].trim() === "{noformat}";
+      out.push(item(list[1], opens ? "" : list[2]));
+      within = " ".repeat(/^ *(-|1\.) /.exec(out.at(-1)!)![0].length);
+      if (!opens) continue;
+      line = list[2];
+    }
     const code = line.trim().match(CODE);
     if (code || line.trim() === "{noformat}") {
       const [body, stop] = until(i, code ? "{code}" : "{noformat}");
       const fence = ticks(body.join("\n"), 3);
-      // Right after a list line, the block belongs to that item, so it takes the indent of the item text.
-      const indent = LIST.test(lines[i - 1] ?? "") ? " ".repeat(/^ *(-|1\.) /.exec(out.at(-1) ?? "")?.[0].length ?? 0) : "";
-      out.push(...[fence + (code?.[1] ?? ""), ...body, fence].map((row) => indent + row));
-      i = stop;
-      continue;
-    }
-    if (line.trim() === "{quote}") {
-      const [body, stop] = until(i, "{quote}");
-      out.push(...jiraToMarkdown(body.join("\n")).split("\n").map((quoted) => (quoted ? `> ${quoted}` : ">")));
+      out.push(...[fence + (code?.[1] ?? ""), ...body, fence].map((row) => within + row));
       i = stop;
       continue;
     }
 
     const heading = line.match(HEADING);
-    const list = line.match(LIST);
-    if (heading) out.push(`${"#".repeat(Number(heading[1]))} ${inline(heading[2])}`);
-    else if (list) out.push(item(list[1], list[2]));
+    if (line.trim() === "{quote}") {
+      const [body, stop] = until(i, "{quote}");
+      out.push(...jiraToMarkdown(body.join("\n")).split("\n").map((quoted) => (quoted ? `> ${quoted}` : ">")));
+      i = stop;
+    } else if (heading) out.push(`${"#".repeat(Number(heading[1]))} ${inline(heading[2])}`);
     else if (line.startsWith("bq. ")) out.push(`> ${inline(line.slice(4))}`);
     // `***`, not `---`: under a text line, `---` would turn that line into a heading.
     else if (/^-{4}\s*$/.test(line)) out.push("***");
-    else out.push(inline(line));
+    else if (line.trim()) {
+      out.push(within + inline(line));
+      continue;
+    } else out.push("");
+    within = "";
   }
 
   return out.join("\n");

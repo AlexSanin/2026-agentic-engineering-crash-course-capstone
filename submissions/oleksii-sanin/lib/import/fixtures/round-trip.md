@@ -53,6 +53,13 @@ A list with code:
   ```
 - after
 
+An item that starts with code:
+
+- ```js
+  let y
+  ```
+- after
+
 > First quote paragraph.
 >
 > Second one with **bold**.

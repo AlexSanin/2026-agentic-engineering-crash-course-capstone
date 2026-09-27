@@ -14,7 +14,9 @@ describe("Jira wiki markup converts to markdown", () => {
       "\n*# ", "\n** ", "\n# ", "\n#* ", "\\*not bold\\*", "\\[not\\|a link\\]", "{quote}", "----", "\\{", "\\*", "\\_", "\\|", "\\!", "\n\\#", "\n\\-",
       // docs/reviews/2026-09-27-add-jira-gdocs-and-import.md: the constructs that did not round-trip.
       "|https://example.com/*a*/b]", "!https://example.com/i.png!", "{{a ` b}}", "{{{name}}}", "List<String>", "`tick`",
-      "\nh2\\. ", "\nbq\\. ", "{code}\n```\ninner fence", "* item with code\n{code:js}\n"]) {
+      "\nh2\\. ", "\nbq\\. ", "{code}\n```\ninner fence", "* item with code\n{code:js}\n",
+      // docs/reviews/2026-09-27-review-fixes.md, finding 5.
+      "* {code:js}\nlet y"]) {
       expect(jira, mark).toContain(mark);
     }
     expect(transform(jiraToMarkdown(jira)).blog).toBe(blog);
@@ -68,6 +70,11 @@ describe("Jira wiki markup converts to markdown", () => {
 
   it("keeps a code block under the list item before it", () => {
     expect(jiraToMarkdown("* a\n{code:js}\nx\n{code}\n* b")).toBe("- a\n  ```js\n  x\n  ```\n- b");
+  });
+
+  // Finding 6 of docs/reviews/2026-09-27-review-fixes.md. Jira ends a list item at a blank line only.
+  it("keeps the text under a code block in the list item", () => {
+    expect(jiraToMarkdown("* a\n{code:js}\nx\n{code}\nmore\n* b\n\nout")).toBe("- a\n  ```js\n  x\n  ```\n  more\n- b\n\nout");
   });
 
   it("reads an image", () => {
