@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 
+import { copy } from "@/lib/clipboard";
 import type { TransformResult } from "@/lib/transform";
 
 /**
@@ -28,13 +29,7 @@ function CopyButton({ text, label = "Copy" }: { text: string; label?: string }) 
       type="button"
       disabled={text === ""}
       onClick={async () => {
-        // A refused permission, or a browser with no clipboard API, rejects here.
-        try {
-          await navigator.clipboard.writeText(text);
-          setStatus("copied");
-        } catch {
-          setStatus("failed");
-        }
+        setStatus(await copy(text, navigator.clipboard));
         setTimeout(() => setStatus("idle"), 1500);
       }}
       className="rounded-md border border-black/15 px-3 py-1 text-xs font-medium transition hover:bg-black/5 disabled:cursor-not-allowed disabled:opacity-40 dark:border-white/20 dark:hover:bg-white/10"
