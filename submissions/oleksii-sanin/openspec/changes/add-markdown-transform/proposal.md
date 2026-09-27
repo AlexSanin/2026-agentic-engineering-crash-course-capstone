@@ -43,7 +43,7 @@ None. `openspec/specs/` is empty, because this is the first change in the projec
 beside each `lib/` module.
 
 **New configuration.** `package.json`, `tsconfig.json`, `next.config.ts`, `eslint.config.mjs`,
-`postcss.config.mjs`, and `vitest.config.ts`. `AGENTS.md` requires a human decision before an agent
+`postcss.config.mjs`, and `vitest.config.mts`. `AGENTS.md` requires a human decision before an agent
 edits the last five.
 
 **New dependencies.** `next`, `react`, `typescript`, `vitest`, the `unified` stack (`unified`,
