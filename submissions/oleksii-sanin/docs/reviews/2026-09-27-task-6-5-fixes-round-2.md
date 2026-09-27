@@ -49,3 +49,15 @@ None found. 8e1d8ae edits the spec and nothing else. Each fix commit holds one l
 - Spec sentences from 8e1d8ae: each has a test except the bare-URL sentence (finding 5). The scenario "A URL in a long sentence stays whole" has a test, but finding 1 shows that the test is too narrow.
 
 Reviewed: 10 files, 492 lines of diff (git diff f1bff54..08b46ae): lib/transform/{ast,x,linkedin}.ts, their tests, lib/clipboard.ts with its test, app/tool.tsx, the spec, and the 1.7 row of the 2026-09-20 review. Not reviewed: the key={tab} change and the copy status in a browser, because the brief forbids pnpm dev and the suite has no DOM. I read that code only. Commits after 08b46ae (892231d, 98adfcb, 82e2943) are outside the range, and I did not read them. No tracked file changed. Vite again wrote and removed a temporary config in node_modules/.vite-temp, which is empty now.
+
+---
+
+## Outcome — 2026-09-27
+
+| Finding | Outcome | Commit |
+|---|---|---|
+| 1 | **Fixed.** `sentences()` joins a piece that ends with no space to the next one. A full-width `。`, `！` or `？` still ends a sentence, and a case in `ast.test.ts` holds that. The three URL cases failed before the fix. | `b8f0157` |
+| 2 | **Stands.** A nested list still moves every command below all its steps. The spec permits the output. The fix is a walk that splits at each `pre` and calls itself for a nested list: a rewrite of `toBlocks`. Each of the last two rounds of `toBlocks` changes brought new defects, so the rewrite waits for a decision. The `ponytail:` comment names the ceiling. | `8f056ad` |
+| 3 | **Stands**, for the same reason as 2. The comment no longer claims that the list walk splits at each `pre`. | `8f056ad` |
+| 4 | **Fixed.** `splitLines` splits on `\r\n` or `\n`. The new case failed before the fix. | `1120a7a` |
+| 5 | **Fixed.** A case asserts both outputs exactly for a bare URL in the prose. | `2c9f7c2` |
