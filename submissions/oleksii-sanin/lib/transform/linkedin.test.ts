@@ -4,6 +4,8 @@ import { transform } from "./index";
 /** One sentence of about 100 characters, ending with a full stop. */
 const sentence = (n: number): string => `Sentence ${n} ${"word ".repeat(17)}ends here.`;
 
+const FAMILY = "\u{1F468}‍\u{1F469}‍\u{1F467}‍\u{1F466}";
+
 describe("LinkedIn output is plain text", () => {
   it("removes the emphasis marks", () => {
     const { linkedin } = transform("A **bold** word and an _italic_ word.\n");
@@ -48,6 +50,14 @@ describe("LinkedIn output is plain text", () => {
     expect(meta.linkedin.truncated).toBe(true);
     // The cut keeps whole sentences: the text is a prefix of the source.
     expect(source.startsWith(linkedin.trimEnd())).toBe(true);
+  });
+
+  // Review finding 1.1: with no complete sentence to keep, the hard cut split a surrogate pair.
+  it("cuts a first sentence over the limit between graphemes", () => {
+    const { linkedin, meta } = transform(`${"x".repeat(2999)}${FAMILY} more.`);
+
+    expect(linkedin).toBe("x".repeat(2999));
+    expect(meta.linkedin.truncated).toBe(true);
   });
 
   it("marks short input as not truncated", () => {

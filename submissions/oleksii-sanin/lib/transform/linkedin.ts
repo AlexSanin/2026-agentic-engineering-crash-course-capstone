@@ -1,7 +1,20 @@
-import { type Block, fence, sentences } from "./ast";
+import { type Block, clusters, fence, sentences } from "./ast";
 
-/** LinkedIn stops showing a post beyond this length. */
+/**
+ * LinkedIn stops showing a post beyond this length. The count is UTF-16 code units, which is
+ * never lower than a grapheme count, so a post under it is under any count LinkedIn may apply.
+ */
 const LIMIT = 3000;
+
+/** The longest run of whole pieces, from the start, that fits the limit. */
+const fit = (pieces: string[]): string => {
+  let out = "";
+  for (const piece of pieces) {
+    if (out.length + piece.length > LIMIT) break;
+    out += piece;
+  }
+  return out;
+};
 
 /**
  * The LinkedIn output: plain text, no emphasis marks, each URL on its own line.
@@ -15,13 +28,7 @@ export function linkedin(blocks: Block[]): { text: string; truncated: boolean } 
     .join("\n\n");
   if (full.length <= LIMIT) return { text: full, truncated: false };
 
-  let out = "";
-  for (const sentence of sentences(full)) {
-    if (out.length + sentence.length > LIMIT) break;
-    out += sentence;
-  }
-
-  // A first sentence longer than the whole limit leaves nothing to keep. The hard cut is the
-  // only answer left, and it is better than an empty post.
-  return { text: out.trimEnd() || full.slice(0, LIMIT), truncated: true };
+  // A first sentence longer than the whole limit leaves nothing to keep. The cut between
+  // graphemes is the only answer left, and it is better than an empty post.
+  return { text: fit(sentences(full)).trimEnd() || fit(clusters(full)), truncated: true };
 }

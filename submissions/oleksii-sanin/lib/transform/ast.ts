@@ -32,6 +32,9 @@ const WORDS = new Intl.Segmenter("en", { granularity: "word" });
 /** The grapheme count of `text`. X counts differently, and `x.ts` names that ceiling. */
 export const graphemes = (text: string): number => [...GRAPHEMES.segment(text)].length;
 
+/** The grapheme clusters of `text`, in order. */
+export const clusters = (text: string): string[] => [...GRAPHEMES.segment(text)].map((g) => g.segment);
+
 export const sentences = (text: string): string[] =>
   [...SENTENCES.segment(text)].map((s) => s.segment);
 
@@ -39,7 +42,7 @@ export const words = (text: string): string[] => [...WORDS.segment(text)].map((s
 
 /** Cut `text` into pieces of at most `budget` graphemes. The last resort, inside one word. */
 export const splitGraphemes = (text: string, budget: number): string[] => {
-  const all = [...GRAPHEMES.segment(text)].map((g) => g.segment);
+  const all = clusters(text);
   const out: string[] = [];
   for (let i = 0; i < all.length; i += budget) out.push(all.slice(i, i + budget).join(""));
   return out;
