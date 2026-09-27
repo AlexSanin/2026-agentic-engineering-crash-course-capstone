@@ -21,20 +21,25 @@ const TABS = [
 type TabId = (typeof TABS)[number]["id"];
 
 function CopyButton({ text, label = "Copy" }: { text: string; label?: string }) {
-  const [copied, setCopied] = useState(false);
+  const [status, setStatus] = useState<"idle" | "copied" | "failed">("idle");
 
   return (
     <button
       type="button"
       disabled={text === ""}
       onClick={async () => {
-        await navigator.clipboard.writeText(text);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 1500);
+        // A refused permission, or a browser with no clipboard API, rejects here.
+        try {
+          await navigator.clipboard.writeText(text);
+          setStatus("copied");
+        } catch {
+          setStatus("failed");
+        }
+        setTimeout(() => setStatus("idle"), 1500);
       }}
       className="rounded-md border border-black/15 px-3 py-1 text-xs font-medium transition hover:bg-black/5 disabled:cursor-not-allowed disabled:opacity-40 dark:border-white/20 dark:hover:bg-white/10"
     >
-      {copied ? "Copied" : label}
+      {status === "copied" ? "Copied" : status === "failed" ? "Copy failed" : label}
     </button>
   );
 }
