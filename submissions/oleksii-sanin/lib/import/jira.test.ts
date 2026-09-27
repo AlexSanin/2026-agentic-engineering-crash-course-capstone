@@ -96,6 +96,15 @@ describe("Jira wiki markup converts to markdown", () => {
     expect(performance.now() - start).toBeLessThan(1000);
   });
 
+  // Finding 4 of that review: a kept URL held a placeholder, and the one restore pass left it in.
+  it("keeps an escape and a code span inside a link or an image URL", () => {
+    expect(jiraToMarkdown("[a|https://x.com/a\\_b]")).toBe("[a](https://x.com/a\\_b)");
+    expect(jiraToMarkdown("[share|\\\\server\\share]")).toBe("[share](\\\\server\\share)");
+    for (const input of ["[a|https://x.com/{{id}}]", "!foo[a|https://x.com]bar!"]) {
+      expect(jiraToMarkdown(input)).not.toMatch(/[]/);
+    }
+  });
+
   // Finding 20: the placeholders are private-use characters, and input can hold them too.
   it("keeps text that looks like a placeholder", () => {
     expect(jiraToMarkdown("text \uE0000\uE001 here")).toBe("text 0 here");

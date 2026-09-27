@@ -54,17 +54,20 @@ function spans(text: string, keep: (value: string) => string): string {
  * The inline rules. Code spans, backslash escapes and URLs come out first, so that no rule touches
  * them. An escape stays as it is, because markdown reads a backslash before punctuation the same
  * way. A `<` or a backtick in the text gets a backslash, so that markdown does not read HTML or code.
+ * A URL can hold a kept piece, so it is restored before it is kept. A kept piece then never holds another.
  */
 function inline(text: string): string {
   const kept: string[] = [];
   const keep = (value: string): string => `\uE000${kept.push(value) - 1}\uE001`;
-  return spans(text.replace(/[\uE000\uE001]/g, ""), keep)
-    .replace(/\\[^\sA-Za-z0-9]/g, keep)
-    .replace(/\[([^|[\]]*)\|([^[\]]+)\]/g, (_, label: string, url: string) => `[${label}](${keep(url)})`)
-    .replace(/!([^\s!|]+)(?:\|[^!]*)?!/g, (_, src: string) => `![](${keep(src)})`)
-    .replace(/[<`]/g, "\\$&")
-    .replace(/\*([^*\s](?:[^*]*[^*\s])?)\*/g, "**$1**")
-    .replace(KEPT, (_, index: string) => kept[Number(index)]);
+  const restore = (value: string): string => value.replace(KEPT, (_, index: string) => kept[Number(index)]);
+  return restore(
+    spans(text.replace(/[\uE000\uE001]/g, ""), keep)
+      .replace(/\\[^\sA-Za-z0-9]/g, keep)
+      .replace(/\[([^|[\]]*)\|([^[\]]+)\]/g, (_, label: string, url: string) => `[${label}](${keep(restore(url))})`)
+      .replace(/!([^\s!|]+)(?:\|[^!]*)?!/g, (_, src: string) => `![](${keep(restore(src))})`)
+      .replace(/[<`]/g, "\\$&")
+      .replace(/\*([^*\s](?:[^*]*[^*\s])?)\*/g, "**$1**"),
+  );
 }
 
 /** A list line. Each parent mark indents by the width of its markdown marker: `- ` or `1. `. */
