@@ -56,9 +56,9 @@
 - [x] 6.2 Save the output of one real run to `docs/runs/`. The file shows the iteration count and the stop reason.
 - [x] 6.3 Run the `reviewer` subagent on the diff of groups 2 and 3. Save the output to `docs/reviews/`.
 - [x] 6.4 Run the `reviewer` subagent once on the finished change. Save that output too. Record an empty review as an empty review. The first report, `docs/reviews/2026-09-20-finished-change.md`, arrived truncated, so this tick in `133b896` came early. The full re-run is `docs/reviews/2026-09-27-finished-change-rerun.md`.
-- [ ] 6.5 Fix what the reviewer found, or record why a finding stands unfixed.
+- [x] 6.5 Fix what the reviewer found, or record why a finding stands unfixed.
 - [x] 6.6 Add a row to `docs/autonomy-log.md` for each significant piece of work, as it happens. Record every level change with its reason.
-- [ ] 6.7 Update the status lines in `docs/capstone-spec.md` for R1 to R7.
+- [x] 6.7 Update the status lines in `docs/capstone-spec.md` for R1 to R7.
 - [x] 6.8 Run `openspec validate add-markdown-transform --strict`. The CLI has no `verify` command, which this task named until now. Edit the spec where reality did not match it. Commit that edit apart. The tick in `db15085` came before any spec edit. The spec edits are `54a1e9f` and `8e1d8ae`, on 2026-09-27.
 - [x] 6.9 Make the loop call the agent. After a red check, `scripts/check-loop.mjs` runs `claude -p` with the failure output, then checks again. The agent may not edit a test file or `app/api/**`. The script from 6.1 repeated the check and changed nothing between iterations, so it was a retry, not an agent loop. On 2026-09-27 the human asked whether loops were covered. The agent first said yes, then read the script against the rubric wording and found the gap.
 - [x] 6.10 Write a failing test for review finding 1.3, the X part that holds only a fence marker. Commit it red. Then run the loop from 6.9 and let the agent fix `lib/`. Save that run to `docs/runs/`.

@@ -64,7 +64,7 @@ R1 is met when a human pastes the post into the page once, and the route finding
 **Verify:** `pnpm check` exits 0. Quote the output and the test count in the PR.
 
 **Status today:** met. `pnpm check` runs `next typegen`, then `tsc --noEmit`, then `eslint`, then
-`vitest run`. At `08b46ae` it exits 0 with 56 tests in 8 files. At the start of 2026-09-27 it held
+`vitest run`. At `8f056ad` it exits 0 with 63 tests in 8 files. At the start of 2026-09-27 it held
 30 tests in 6 files. Every `lib/` module has a test file beside it: `lib/transform/ast.ts` since
 `e011f1f`, and `lib/clipboard.ts` since `ac5f741`. The splitter has a case for each edge case R2
 names: a long sentence, a code fence, and a link at the limit.
@@ -137,7 +137,7 @@ may not edit a test file or `app/api/**`.
 
 **Verify:** `docs/reviews/` holds at least two files. At least one names a real finding.
 
-**Status today:** met on 2026-09-27. `docs/reviews/` holds four files, and each names real findings.
+**Status today:** met on 2026-09-27. `docs/reviews/` holds five files, and each names real findings.
 A session other than the maker wrote each one.
 
 - `2026-09-20-lib-transform-groups-2-3.md`: 7 correctness findings, 6 coverage gaps, 4 weak tests, 2
@@ -150,6 +150,11 @@ A session other than the maker wrote each one.
   this file.
 - `2026-09-27-task-6-5-fixes.md`: the review of the fixes for the first two files. 13 findings, and
   5 of them are regressions that those fixes introduced.
+- `2026-09-27-task-6-5-fixes-round-2.md`: the same reviewer on the fixes for its own findings. 4
+  correctness findings and 1 missing test. All 12 of its mutants fail the suite.
+
+A third round, on `ca8505d..8f056ad`, was requested and then stopped when the session ended. It sent
+no result, so those four commits have no review.
 
 Each file ends with the outcome of each finding: a fix with its commit, or the reason it stands.
 Findings that need a human decision under `AGENTS.md` stand open and say so.
