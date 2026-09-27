@@ -53,9 +53,16 @@ function splitLines(text: string, budget: number): string[] {
       current = candidate;
       continue;
     }
-    if (current) out.push(current);
-    current = graphemes(line) <= budget ? line : "";
-    if (current === "") out.push(...splitGraphemes(line, budget));
+    if (graphemes(line) <= budget) {
+      if (current) out.push(current);
+      current = line;
+      continue;
+    }
+    // A line longer than the whole budget. The split starts from `current`, so the opening
+    // fence shares a part with code, and the last piece stays open for the closing fence.
+    const pieces = splitGraphemes(candidate, budget);
+    out.push(...pieces.slice(0, -1));
+    current = pieces.at(-1) ?? "";
   }
 
   if (current) out.push(current);

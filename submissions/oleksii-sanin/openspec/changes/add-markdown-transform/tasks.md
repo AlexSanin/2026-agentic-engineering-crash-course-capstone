@@ -61,4 +61,4 @@
 - [ ] 6.7 Update the status lines in `docs/capstone-spec.md` for R1 to R7.
 - [x] 6.8 Run `openspec validate add-markdown-transform --strict`. The CLI has no `verify` command, which this task named until now. Edit the spec where reality did not match it. Commit that edit apart.
 - [x] 6.9 Make the loop call the agent. After a red check, `scripts/check-loop.mjs` runs `claude -p` with the failure output, then checks again. The agent may not edit a test file or `app/api/**`. The script from 6.1 repeated the check and changed nothing between iterations, so it was a retry, not an agent loop. On 2026-09-27 the human asked whether loops were covered. The agent first said yes, then read the script against the rubric wording and found the gap.
-- [ ] 6.10 Write a failing test for review finding 1.3, the X part that holds only a fence marker. Commit it red. Then run the loop from 6.9 and let the agent fix `lib/`. Save that run to `docs/runs/`.
+- [x] 6.10 Write a failing test for review finding 1.3, the X part that holds only a fence marker. Commit it red. Then run the loop from 6.9 and let the agent fix `lib/`. Save that run to `docs/runs/`.
