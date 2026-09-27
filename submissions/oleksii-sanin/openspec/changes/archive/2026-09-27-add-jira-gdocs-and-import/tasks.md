@@ -66,4 +66,4 @@
 - [x] 9.4 Run the `reviewer` subagent on the diff of this change. Save the output to `docs/reviews/`. Fix each finding, or record why it stands unfixed. Two reviews: `docs/reviews/2026-09-27-add-jira-gdocs-and-import.md` and `docs/reviews/2026-09-27-review-fixes.md`. Each file ends with a table of the outcome of each finding. The fixes of the second review, `b820a1c` to `e29783c`, had no reviewer, by the choice of the human.
 - [x] 9.5 Add a row to `docs/autonomy-log.md` for each group, as it happens. Record who decided. Rows 17 to 26. The first round of review fixes, `fc1da50` to `08ecb9d`, has no row of its own.
 - [x] 9.6 Run `openspec validate add-jira-gdocs-and-import --strict`. Edit the spec where the code differs from it. Commit that edit apart.
-- [ ] 9.7 Archive `add-markdown-transform` first. Its tasks 6.5 and 6.7 are open. Then archive this change.
+- [x] 9.7 Archive `add-markdown-transform` first. Its tasks 6.5 and 6.7 are open. Then archive this change. Tasks 6.5 and 6.7 closed before this. The same commit as this tick archives both changes, in that order.
