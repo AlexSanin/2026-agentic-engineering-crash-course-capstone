@@ -149,6 +149,7 @@ export function Tool() {
                 {tab === "linkedin" && result.meta.linkedin.truncated ? " · cut at 3000" : ""}
               </span>
               <CopyButton
+                key={tab}
                 text={tab === "x" ? result.x.join("\n\n") : result[tab]}
                 label={tab === "x" ? "Copy the thread" : "Copy"}
               />
