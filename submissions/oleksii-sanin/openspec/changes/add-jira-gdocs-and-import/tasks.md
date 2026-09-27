@@ -1,10 +1,10 @@
 ## 1. Jira output
 
-- [ ] 1.1 Write `lib/transform/jira.test.ts` for the nine scenarios of "Jira output is wiki markup". Run it. It must fail.
-- [ ] 1.2 Create `lib/transform/jira.ts`. Export `jira(tree)`, a walk over the hast tree that `transform` already builds.
-- [ ] 1.3 Add the `ponytail:` comment at the escape site. Name `^ ~ + - ??` and the literal backslash as the ceiling.
-- [ ] 1.4 Add `jira` to `TransformResult`, to `EMPTY` and to `meta` in `lib/transform/index.ts`.
-- [ ] 1.5 Run `pnpm check`. It must exit 0. Commit the Jira output.
+- [x] 1.1 Write `lib/transform/jira.test.ts` for the nine scenarios of "Jira output is wiki markup". Run it. It must fail.
+- [x] 1.2 Create `lib/transform/jira.ts`. Export `jira(tree)`, a walk over the hast tree that `transform` already builds.
+- [x] 1.3 Add the `ponytail:` comment at the escape site. Name `^ ~ + - ??` and the literal backslash as the ceiling.
+- [x] 1.4 Add `jira` to `TransformResult`, to `EMPTY` and to `meta` in `lib/transform/index.ts`.
+- [x] 1.5 Run `pnpm check`. It must exit 0. Commit the Jira output.
 
 ## 2. Google Docs output
 

@@ -1,5 +1,5 @@
 /**
- * The hast tree, reduced to what the four outputs read.
+ * The hast tree, reduced to what the outputs read.
  *
  * `@types/hast` is a transitive dependency, and pnpm hides it from an import here. A full
  * type costs one more dependency and one more human decision, so this module declares the
@@ -65,7 +65,8 @@ export const splitGraphemes = (text: string, budget: number): string[] => {
   return out;
 };
 
-const textOf = (node: HastNode): string =>
+/** The text of `node` and of everything under it. */
+export const textOf = (node: HastNode): string =>
   node.type === "text" ? (node.value ?? "") : (node.children ?? []).map(textOf).join("");
 
 /** The text of `node` less every nested `pre`, which becomes a code block of its own. */

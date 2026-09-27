@@ -73,6 +73,7 @@ describe("The result reports its own size", () => {
       email: { chars: 0 },
       x: { parts: 0, chars: 0 },
       linkedin: { chars: 0, truncated: false },
+      jira: { chars: 0 },
     });
   });
 });

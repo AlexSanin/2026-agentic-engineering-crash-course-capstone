@@ -1,5 +1,5 @@
 /**
- * One markdown source, four channel outputs.
+ * One markdown source, one output for each channel.
  *
  * This module is pure. It imports no React and no Next, so `app/api/transform/route.ts`
  * stays thin and every rule below is testable without a browser and without a server.
@@ -11,6 +11,7 @@ import remarkRehype from "remark-rehype";
 import { unified } from "unified";
 
 import { type HastNode, toBlocks } from "./ast";
+import { jira } from "./jira";
 import { linkedin } from "./linkedin";
 import { thread } from "./x";
 
@@ -23,6 +24,8 @@ export type TransformResult = {
   x: string[];
   /** LinkedIn plain text. No emphasis marks, each URL on its own line, 3000 characters or fewer. */
   linkedin: string;
+  /** Jira wiki markup. `jira.ts` names the characters that plain text escapes, and the ones it does not. */
+  jira: string;
   meta: TransformMeta;
 };
 
@@ -31,6 +34,7 @@ export type TransformMeta = {
   email: { chars: number };
   x: { parts: number; chars: number };
   linkedin: { chars: number; truncated: boolean };
+  jira: { chars: number };
 };
 
 const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif";
@@ -78,11 +82,13 @@ const EMPTY: TransformResult = {
   email: "",
   x: [],
   linkedin: "",
+  jira: "",
   meta: {
     blog: { chars: 0 },
     email: { chars: 0 },
     x: { parts: 0, chars: 0 },
     linkedin: { chars: 0, truncated: false },
+    jira: { chars: 0 },
   },
 };
 
@@ -97,17 +103,20 @@ export function transform(markdown: string): TransformResult {
   const blocks = toBlocks(tree);
   const x = thread(blocks);
   const post = linkedin(blocks);
+  const wiki = jira(tree);
 
   return {
     blog,
     email,
     x,
     linkedin: post.text,
+    jira: wiki,
     meta: {
       blog: { chars: blog.length },
       email: { chars: email.length },
       x: { parts: x.length, chars: x.join("").length },
       linkedin: { chars: post.text.length, truncated: post.truncated },
+      jira: { chars: wiki.length },
     },
   };
 }

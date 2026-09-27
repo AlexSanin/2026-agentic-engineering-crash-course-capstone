@@ -20,12 +20,12 @@ const post = (body: string): Promise<Response> =>
   POST(new Request("http://localhost/api/transform", { method: "POST", body }));
 
 describe("The route handler stays thin", () => {
-  it("answers 200 with the four outputs and the meta", async () => {
+  it("answers 200 with every output and the meta", async () => {
     const response = await post(JSON.stringify({ markdown: "# Title" }));
     const body = await response.json();
 
     expect(response.status).toBe(200);
-    expect(Object.keys(body).sort()).toEqual(["blog", "email", "linkedin", "meta", "x"]);
+    expect(Object.keys(body).sort()).toEqual(["blog", "email", "jira", "linkedin", "meta", "x"]);
     expect(body.blog).toContain("<h1>Title</h1>");
   });
 
