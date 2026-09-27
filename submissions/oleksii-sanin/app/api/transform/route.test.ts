@@ -25,7 +25,7 @@ describe("The route handler stays thin", () => {
     const body = await response.json();
 
     expect(response.status).toBe(200);
-    expect(Object.keys(body).sort()).toEqual(["blog", "email", "jira", "linkedin", "meta", "x"]);
+    expect(Object.keys(body).sort()).toEqual(["blog", "email", "gdocs", "jira", "linkedin", "meta", "x"]);
     expect(body.blog).toContain("<h1>Title</h1>");
   });
 

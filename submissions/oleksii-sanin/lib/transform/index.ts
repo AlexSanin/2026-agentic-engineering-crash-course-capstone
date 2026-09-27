@@ -26,6 +26,11 @@ export type TransformResult = {
   linkedin: string;
   /** Jira wiki markup. `jira.ts` names the characters that plain text escapes, and the ones it does not. */
   jira: string;
+  /**
+   * HTML for a rich-text paste into Google Docs. Only code carries a style, so that Docs applies its
+   * own heading and list styles.
+   */
+  gdocs: string;
   meta: TransformMeta;
 };
 
@@ -35,6 +40,7 @@ export type TransformMeta = {
   x: { parts: number; chars: number };
   linkedin: { chars: number; truncated: boolean };
   jira: { chars: number };
+  gdocs: { chars: number };
 };
 
 const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif";
@@ -64,16 +70,26 @@ const EMAIL_STYLES: Record<string, string> = {
   td: "border: 1px solid #dddddd; padding: 8px;",
 };
 
+/**
+ * Inline styles for the Google Docs output. A heading or a list with a style keeps that style in
+ * Docs, and then it stops matching the rest of the document. Code needs its font, because Docs
+ * drops a `<style>` block too.
+ */
+const GDOCS_STYLES: Record<string, string> = {
+  pre: `font-family: ${MONO};`,
+  code: `font-family: ${MONO};`,
+};
+
 const toHast = unified().use(remarkParse).use(remarkRehype);
 const toHtml = unified().use(rehypeStringify);
 
 /** Walk the tree and put the style map on every element it names. */
-function applyEmailStyles(node: HastNode): HastNode {
+function applyStyles(node: HastNode, map: Record<string, string>): HastNode {
   if (node.type === "element" && node.tagName) {
-    const style = EMAIL_STYLES[node.tagName];
+    const style = map[node.tagName];
     if (style) node.properties = { ...node.properties, style };
   }
-  node.children?.forEach(applyEmailStyles);
+  node.children?.forEach((child) => applyStyles(child, map));
   return node;
 }
 
@@ -83,12 +99,14 @@ const EMPTY: TransformResult = {
   x: [],
   linkedin: "",
   jira: "",
+  gdocs: "",
   meta: {
     blog: { chars: 0 },
     email: { chars: 0 },
     x: { parts: 0, chars: 0 },
     linkedin: { chars: 0, truncated: false },
     jira: { chars: 0 },
+    gdocs: { chars: 0 },
   },
 };
 
@@ -98,7 +116,8 @@ export function transform(markdown: string): TransformResult {
   const tree = toHast.runSync(toHast.parse(markdown)) as unknown as HastNode;
 
   const blog = toHtml.stringify(tree as never);
-  const email = toHtml.stringify(applyEmailStyles(structuredClone(tree)) as never);
+  const email = toHtml.stringify(applyStyles(structuredClone(tree), EMAIL_STYLES) as never);
+  const gdocs = toHtml.stringify(applyStyles(structuredClone(tree), GDOCS_STYLES) as never);
 
   const blocks = toBlocks(tree);
   const x = thread(blocks);
@@ -111,12 +130,14 @@ export function transform(markdown: string): TransformResult {
     x,
     linkedin: post.text,
     jira: wiki,
+    gdocs,
     meta: {
       blog: { chars: blog.length },
       email: { chars: email.length },
       x: { parts: x.length, chars: x.join("").length },
       linkedin: { chars: post.text.length, truncated: post.truncated },
       jira: { chars: wiki.length },
+      gdocs: { chars: gdocs.length },
     },
   };
 }

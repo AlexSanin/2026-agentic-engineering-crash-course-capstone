@@ -8,11 +8,11 @@
 
 ## 2. Google Docs output
 
-- [ ] 2.1 Write `lib/transform/gdocs.test.ts` for the two scenarios of "Google Docs output pastes as formatted text". Run it. It must fail.
-- [ ] 2.2 Rename `applyEmailStyles` to `applyStyles(node, map)`. The email output passes `EMAIL_STYLES`. `email.test.ts` must stay green with no edit.
-- [ ] 2.3 Add a style map with `pre` and `code` only. Build `gdocs` from it. Add `gdocs` to `TransformResult`, to `EMPTY` and to `meta`.
-- [ ] 2.4 Edit `lib/transform/index.test.ts` for the renamed requirement "One source, all channel outputs": each scenario checks six outputs. Add the scenario "Meta counts the Jira and Google Docs outputs".
-- [ ] 2.5 Run `pnpm check`. It must exit 0. Commit the Google Docs output.
+- [x] 2.1 Write `lib/transform/gdocs.test.ts` for the two scenarios of "Google Docs output pastes as formatted text". Run it. It must fail.
+- [x] 2.2 Rename `applyEmailStyles` to `applyStyles(node, map)`. The email output passes `EMAIL_STYLES`. `email.test.ts` must stay green with no edit.
+- [x] 2.3 Add a style map with `pre` and `code` only. Build `gdocs` from it. Add `gdocs` to `TransformResult`, to `EMPTY` and to `meta`.
+- [x] 2.4 Edit `lib/transform/index.test.ts` for the renamed requirement "One source, all channel outputs": each scenario checks six outputs. Add the scenario "Meta counts the Jira and Google Docs outputs".
+- [x] 2.5 Run `pnpm check`. It must exit 0. Commit the Google Docs output.
 
 ## 3. Six tabs and the rich-text copy
 

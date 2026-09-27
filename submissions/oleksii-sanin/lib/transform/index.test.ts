@@ -8,14 +8,16 @@ const SOURCE = `# Title
 A paragraph with a [link](https://example.com/a?b=1) in it.
 `;
 
-describe("One source, four outputs", () => {
-  it("returns all four outputs together", () => {
+describe("One source, all channel outputs", () => {
+  it("returns all six outputs together", () => {
     const result = transform(SOURCE);
 
     expect(result.blog).not.toBe("");
     expect(result.email).not.toBe("");
     expect(result.x.length).toBeGreaterThan(0);
     expect(result.linkedin).not.toBe("");
+    expect(result.jira).not.toBe("");
+    expect(result.gdocs).not.toBe("");
   });
 
   it("returns the same output for the same input", () => {
@@ -29,6 +31,8 @@ describe("One source, four outputs", () => {
     expect(result.email).toBe("");
     expect(result.x).toEqual([]);
     expect(result.linkedin).toBe("");
+    expect(result.jira).toBe("");
+    expect(result.gdocs).toBe("");
   });
 
   // Review finding 2.3: the rule had no test.
@@ -65,6 +69,14 @@ describe("The result reports its own size", () => {
     expect(transform("# Title\n").meta.x).toEqual({ parts: 1, chars: 10 });
   });
 
+  it("counts the Jira and Google Docs outputs", () => {
+    const { jira, gdocs, meta } = transform("## Setup\n");
+
+    expect([jira, gdocs]).toEqual(["h2. Setup", "<h2>Setup</h2>"]);
+    expect(meta.jira).toEqual({ chars: 9 });
+    expect(meta.gdocs).toEqual({ chars: 14 });
+  });
+
   it("reports zero for every output of an empty source", () => {
     const { meta } = transform("");
 
@@ -74,6 +86,7 @@ describe("The result reports its own size", () => {
       x: { parts: 0, chars: 0 },
       linkedin: { chars: 0, truncated: false },
       jira: { chars: 0 },
+      gdocs: { chars: 0 },
     });
   });
 });
